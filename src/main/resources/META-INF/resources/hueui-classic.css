@@ -1,0 +1,40 @@
+:root {
+    font-family: "Verdana";
+    --hui-color-background: #cccccc;
+
+    --hui-color-input-text-background: white;
+    --hui-color-input-text: black;
+
+    --hui-color-bevel-left: white;
+    --hui-color-bevel-top: white;
+    --hui-color-bevel-right: gray;
+    --hui-color-bevel-bottom: gray;
+
+    --hui-color-scrollbar-space: gray;
+    --hui-color-scrollbar-handle: lightgray;
+    --hui-color-scrollbar-border: darkgray;
+    --hui-color-scrollbar-resizer: darkgray;
+}
+
+html {
+    background-color: var(--hui-color-background);
+}
+
+table {
+    border-style: outset;
+    border-radius: 2px;
+}
+
+th {
+    border-style: outset;
+    border-width: 2px;
+    border-radius: 2px;
+}
+
+td {
+    background-color: var(--hui-color-input-text-background);
+    border-collapse: collapse;
+    border-width: 1px;
+    border-color: black;
+    border-style: solid;
+}
