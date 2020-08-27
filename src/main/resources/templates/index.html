@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{#insert title}Default Title{/}</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        .rainbow {
+            background: white;
+            border-radius: 4px;
+
+            background-image: repeating-linear-gradient(to right,
+            #c4e17f 0px, #c4e17f 50px,
+            #f7fdca 50px, #f7fdca 100px,
+            #fad071 100px, #fad071 150px,
+            #f0766b 150px, #f0766b 200px,
+            #db9dbe 200px, #db9dbe 250px,
+            #c49cdf 250px, #c49cdf 300px,
+            #6599e2 300px, #6599e2 350px,
+            #61c2e4 350px, #61c2e4 400px);
+            background-size: 100% 10px;
+            background-repeat:no-repeat;
+
+    </style>
+</head>
+<body style="margin: 1em">
+<body>
+<h1 style="background-color: #eeeeee; color: black; border-radius: 3px" class="rainbow">
+    <i class="ui camera retro icon"></i>Phexpedition</h1>
+<div class="ui breadcrumb">
+    <a href="/" class="section">Home</a>
+    <i class="right angle icon divider"></i>
+    <div class="active section">Users</div>
+</div>
+{#insert body}No body!{/}
+</body>
+</html>

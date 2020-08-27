@@ -1,67 +1,81 @@
-<!DOCTYPE html>
+{#include index}
+{#title}User{/title}
 
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Users</title>
-    <link rel="stylesheet" href="/hueui-classic.css" type="text/css">
-</head>
-<body>
-<h1>Users</h1>
+{#body}
 
-<form action="/ui/user/_all" method="get" name="tableform">
-    <label for="sortColumn">Sort column</label>
-    <select id="sortColumn" name="sortColumn">
-        <option value="Login" {#if sortColumn is
-        'Login'}selected{/if}>Login</option>
-        <option value="DisplayName" {#if sortColumn is
-        'DisplayName'}selected{/if}>Name</option>
-        <option value="ValidFrom" {#if sortColumn is
-        'ValidFrom'}selected{/if}>Valid from</option>
-        <option value="ValidUntil" {#if sortColumn is
-        'ValidUntil'}selected{/if}>Valid until</option>
-    </select>
+<h3 class="ui dividing header">User search</h3>
+<form class="ui form" action="/user/_all" method="get" name="tableform">
+    <div class="fields">
+        <div class="field">
+            <label for="filter">Term</label>
+            <div class="ui action input">
+                <input id="filter" name="filter" type="text" value="{filter}">
+                <button class="ui icon button"><i class="search icon"></i></input>
+            </div>
+        </div>
 
-    <label for="sortDirection">order</label>
-    <select id="sortDirection" name="sortDirection">
-        <option value="Ascending" {#if sortDirection is
-        'Ascending'}selected{/if}>Ascending</option>
-        <option value="Descending" {#if sortDirection is
-        'Descending'}selected{/if}>Descending</option>
-    </select>
+        <div class="field">
+            <label for="sortColumn">Sort by</label>
+            <select class="ui fluid dropdown" id="sortColumn" name="sortColumn">
+                <option value="Login" {#if sortColumn is
+                'Login'}selected{/if}>Login</option>
+                <option value="DisplayName" {#if sortColumn is
+                'DisplayName'}selected{/if}>Name</option>
+                <option value="ValidFrom" {#if sortColumn is
+                'ValidFrom'}selected{/if}>Valid from</option>
+                <option value="ValidUntil" {#if sortColumn is
+                'ValidUntil'}selected{/if}>Valid until</option>
+            </select>
+        </div>
 
-    <input type="submit" value="Apply and find">
-    <input type="reset" value="Clear">
+        <div class="field">
+            <label for="sortDirection">order</label>
+            <select class="ui fluid dropdown" id="sortDirection" name="sortDirection">
+                <option value="Ascending" {#if sortDirection is
+                'Ascending'}selected{/if}>Ascending</option>
+                <option value="Descending" {#if sortDirection is
+                'Descending'}selected{/if}>Descending</option>
+            </select>
+        </div>
+    </div>
 
-    <table>
-        <thead>
-        <tr>
-            <th>Login</th>
-            <th>Name</th>
-            <th>Valid from</th>
-            <th>Valid until</th>
-            <th>Suspended</th>
-            <th>Hidden</th>
-        </tr>
-        <tr>
-            <td><input name="login" type="text" value="{filter-login}"></td>
-            <td><input name="displayName" type="text" value="{filter-displayName}"></td>
-        </tr>
-        </thead>
-        <tbody>
-        {#for currentUser in userList}
-        <tr>
-            <td>{currentUser.login}</td>
-            <td>{currentUser.displayName}</td>
-            <td>{currentUser.validUntil}</td>
-            <td>{currentUser.validUntil}</td>
-            <td>{currentUser.suspended}</td>
-            <td>{currentUser.hidden}</td>
-        </tr>
-        {/for}
-        </tbody>
-    </table>
 </form>
 
-</body>
-</html>
+{#if userList ne null}
+<h3 class="ui dividing header">Results</h3>
+<table class="ui very basic collapsing celled table">
+    <thead>
+    <tr>
+        <th>User</th>
+        <th>Valid from</th>
+        <th>until</th>
+    </tr>
+    </thead>
+    <tbody>
+    {#for currentUser in userList}
+    <tr>
+        <td>
+            <h4 class="ui image header">
+                <img src="/default-user.png" class="ui mini rounded image">
+                <div class="content">
+                    {currentUser.displayName}
+                    <div class="sub header">
+                        <a href="/user/{currentUser.login}">{currentUser.login}</a>
+                    </div>
+                </div>
+            </h4>
+        </td>
+        <td style="text-overflow: clip; white-space: nowrap; overflow: hidden; max-width: 100px">
+            {currentUser.validFrom}
+        </td>
+        <td style="text-overflow: clip; white-space: nowrap; overflow: hidden; max-width: 100px">
+            {currentUser.validUntil}
+        </td>
+    </tr>
+    {/for}
+    </tbody>
+</table>
+{/if}
+
+{/body}
+{/include}

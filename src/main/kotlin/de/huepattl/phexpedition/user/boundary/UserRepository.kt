@@ -17,17 +17,17 @@ class UserRepository : PanacheRepositoryBase<User, String> {
         return find("login", login).firstResult()
     }
 
-    fun findByLoginAndName(login: String, displayName: String, sortColumn: SortColumn = SortColumn.Login,
-                           sortDirection: SortDirection = SortDirection.Ascending): List<User> {
+    fun findAny(filter: String, sortColumn: SortColumn = SortColumn.Login,
+                sortDirection: SortDirection = SortDirection.Ascending): List<User> {
+
         val params = mutableMapOf(
-                Pair("login", "%${login.toLowerCase()}%"),
-                Pair("displayName", "%${displayName.toLowerCase()}%")
+                Pair("filter", "%${filter.toLowerCase()}%")
         )
 
         return find(
                 """
-                    lower(login) like :login and
-                    lower(displayName) like :displayName
+                    lower(login) like :filter or
+                    lower(displayName) like :filter
                 """.trimIndent(),
                 Sort.by(sortColumn.name, panacheSortDirection(sortDirection)),
                 params)
