@@ -22,18 +22,23 @@
             #6599e2 300px, #6599e2 350px,
             #61c2e4 350px, #61c2e4 400px);
             background-size: 100% 10px;
-            background-repeat:no-repeat;
+            background-repeat: no-repeat;
 
     </style>
 </head>
 <body style="margin: 1em">
 <body>
 <h1 style="background-color: #eeeeee; color: black; border-radius: 3px" class="rainbow">
-    <i class="ui camera retro icon"></i>Phexpedition</h1>
+    <i class="ui camera retro icon"></i>Phexpedition <span style="font-size: 0.5em">by Hüpattl!</span></h1>
 <div class="ui breadcrumb">
-    <a href="/" class="section">Home</a>
-    <i class="right angle icon divider"></i>
-    <div class="active section">Users</div>
+    {#for crumb in breadCrumbs}
+        {#if crumb.value ne ''}
+            <a href="{crumb.value}" class="section">{crumb.key}</a>
+            <i class="right angle icon divider"></i>
+        {#else}
+            <div class="active section">{crumb.key}</div>
+        {/if}
+    {/for}
 </div>
 {#insert body}No body!{/}
 </body>

@@ -7,24 +7,18 @@ import io.quarkus.qute.Template
 import io.quarkus.qute.TemplateInstance
 import javax.enterprise.context.RequestScoped
 import javax.inject.Inject
+import javax.transaction.Transactional
 import javax.ws.rs.*
 import javax.ws.rs.core.MediaType
 
 
-@Path("/user")
+@Path("/user/_all")
 @Produces(MediaType.TEXT_HTML)
 @RequestScoped
-class UserUi(@Inject val userRepository: UserRepository, @Inject val userUiSingle: Template) {
-
-    @Path("/{login}")
-    @GET
-    fun user(@PathParam("login") login: String): TemplateInstance {
-        val user = userRepository.findByLogin(login)
-        return userUiSingle.data("user", user)
-    }
+@Transactional
+class UserList(@Inject val userRepository: UserRepository, @Inject val userList: Template) {
 
     @GET
-    @Path("/_all")
     fun list(
             @QueryParam("filter") filter: String?,
             @QueryParam("sortColumn") sortColumn: String?,
@@ -35,7 +29,13 @@ class UserUi(@Inject val userRepository: UserRepository, @Inject val userUiSingl
                 SortColumn.valueOf(sortColumn ?: "Login"),
                 SortDirection.valueOf(sortDirection ?: "Ascending"))
 
-        return userUiSingle
+        val breadCrumbs = linkedMapOf(
+                Pair("Home", "/"),
+                Pair("Users", "")
+        )
+
+        return userList
+                .data("breadCrumbs", breadCrumbs)
                 .data("userList", allUsers)
                 .data("filter", filter)
                 .data("sortColumn", sortColumn)

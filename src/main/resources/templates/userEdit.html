@@ -1,0 +1,64 @@
+{#include index}
+{#title}{user.displayName}{/title}
+
+{#body}
+
+<h3 class="ui dividing header">User {user.displayName}</h3>
+<form class="ui form" action="/user/{user.id}" method="post" name="user">
+
+    <div class="fields">
+        <div class="two wide field">
+            <label for="userId">User ID</label>
+            <input id="userId" name="userId" type="text" value="{user.id}" disabled>
+        </div>
+        <div class="two wide field">
+            <label for="userId">Login</label>
+            <input id="login" name="login" type="text" value="{user.login}">
+        </div>
+    </div>
+
+    <div class="four wide field">
+        <label for="displayName">Name</label>
+        <input id="displayName" name="displayName" type="text" value="{user.displayName}">
+    </div>
+
+    <div class="fields">
+        <div class="two wide field">
+            <label for="validFrom">Valid from</label>
+            <input id="validFrom" type="datetime-local" value="{user.validFrom}">
+        </div>
+        <div class="two wide field">
+            <label for="validUntil">until</label>
+            <input id="validUntil" type="datetime-local" value="{user.validUntil}">
+        </div>
+    </div>
+
+    <div class="fields">
+        <div class="two wide field">
+            <div class="ui toggle checkbox">
+                <input id="suspended" type="checkbox" value="{user.suspended}">
+                <label for="validFrom">Suspended</label>
+            </div>
+        </div>
+        <div class="two wide field">
+            <div class="ui toggle checkbox">
+                <label for="hidden">Hidden</label>
+                <input id="hidden" type="checkbox" value="{user.hidden}">
+            </div>
+        </div>
+    </div>
+
+    <div class="four wide field">
+        <label for="roles">Roles</label>
+        <input id="roles" type="text" value="{user.roles}">
+    </div>
+
+
+    <input type="submit" class="ui primary button" value="Save">
+
+    <a href="/user/_all" class="ui button">Cancel and go back to user overview</a>
+
+</form>
+
+{/body}
+{/include}

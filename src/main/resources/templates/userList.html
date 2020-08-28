@@ -3,38 +3,36 @@
 
 {#body}
 
-<h3 class="ui dividing header">User search</h3>
+<h3 class="ui dividing header">Users</h3>
+
+<a href="/user/_new" class="ui primary button">Register new user...</a>
+
+<h4 class="ui dividing header">Find</h4>
 <form class="ui form" action="/user/_all" method="get" name="tableform">
     <div class="fields">
         <div class="field">
             <label for="filter">Term</label>
             <div class="ui action input">
                 <input id="filter" name="filter" type="text" value="{filter}">
-                <button class="ui icon button"><i class="search icon"></i></input>
+                <button class="ui icon button"><i class="search icon"></i></button>
             </div>
         </div>
 
         <div class="field">
-            <label for="sortColumn">Sort by</label>
+            <label for="sortColumn">Sort by {sortColumn}</label>
             <select class="ui fluid dropdown" id="sortColumn" name="sortColumn">
-                <option value="Login" {#if sortColumn is
-                'Login'}selected{/if}>Login</option>
-                <option value="DisplayName" {#if sortColumn is
-                'DisplayName'}selected{/if}>Name</option>
-                <option value="ValidFrom" {#if sortColumn is
-                'ValidFrom'}selected{/if}>Valid from</option>
-                <option value="ValidUntil" {#if sortColumn is
-                'ValidUntil'}selected{/if}>Valid until</option>
+                <option value="Login" {#if sortColumn eq 'Login'}selected{/if}>Login</option>
+                <option value="DisplayName" {#if sortColumn eq 'DisplayName'}selected{/if}>Name</option>
+                <option value="ValidFrom" {#if sortColumn eq 'ValidFrom'}selected{/if}>Valid from</option>
+                <option value="ValidUntil" {#if sortColumn eq 'ValidUntil'}selected{/if}>Valid until</option>
             </select>
         </div>
 
         <div class="field">
             <label for="sortDirection">order</label>
             <select class="ui fluid dropdown" id="sortDirection" name="sortDirection">
-                <option value="Ascending" {#if sortDirection is
-                'Ascending'}selected{/if}>Ascending</option>
-                <option value="Descending" {#if sortDirection is
-                'Descending'}selected{/if}>Descending</option>
+                <option value="Ascending" {#if sortDirection eq 'Ascending'}selected{/if}>Ascending</option>
+                <option value="Descending" {#if sortDirection eq 'Descending'}selected{/if}>Descending</option>
             </select>
         </div>
     </div>
@@ -42,7 +40,7 @@
 </form>
 
 {#if userList ne null}
-<h3 class="ui dividing header">Results</h3>
+<h4 class="ui dividing header">Results</h4>
 <table class="ui very basic collapsing celled table">
     <thead>
     <tr>
@@ -60,7 +58,7 @@
                 <div class="content">
                     {currentUser.displayName}
                     <div class="sub header">
-                        <a href="/user/{currentUser.login}">{currentUser.login}</a>
+                        <a href="/user/{currentUser.id}">{currentUser.login}</a>
                     </div>
                 </div>
             </h4>
