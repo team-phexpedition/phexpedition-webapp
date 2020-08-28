@@ -1,4 +1,6 @@
-# webapp project
+[![Build Actions Status](https://github.com/team-phexpedition/phexpedition-webapp/workflows/Java%20CI%20with%20Maven/badge.svg)](https://github.com/team-phexpedition/phexpedition-webapp/actions)
+
+# Phexpedition
 
 This project uses Quarkus, the Supersonic Subatomic Java Framework.
 
