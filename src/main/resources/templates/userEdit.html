@@ -25,32 +25,34 @@
     <div class="fields">
         <div class="two wide field">
             <label for="validFrom">Valid from</label>
-            <input id="validFrom" type="datetime-local" value="{user.validFrom}">
+            <input id="validFrom" name="validFrom" type="datetime-local" value="{user.validFrom}">
         </div>
         <div class="two wide field">
             <label for="validUntil">until</label>
-            <input id="validUntil" type="datetime-local" value="{user.validUntil}">
+            <input id="validUntil" name="validUntil" type="datetime-local" value="{user.validUntil}">
         </div>
     </div>
 
     <div class="fields">
         <div class="two wide field">
             <div class="ui toggle checkbox">
-                <input id="suspended" type="checkbox" value="{user.suspended}">
+                <input id="suspended" name="switches" type="checkbox"
+                       value="suspended" {#if user.suspended}checked{/}>
                 <label for="validFrom">Suspended</label>
             </div>
         </div>
         <div class="two wide field">
             <div class="ui toggle checkbox">
+                <input id="hidden" name="switches" type="checkbox"
+                       value="hidden" {#if user.hidden}checked{/}>
                 <label for="hidden">Hidden</label>
-                <input id="hidden" type="checkbox" value="{user.hidden}">
             </div>
         </div>
     </div>
 
     <div class="four wide field">
         <label for="roles">Roles</label>
-        <input id="roles" type="text" value="{user.roles}">
+        <input id="roles" name="roles" type="text" value="{user.roles}">
     </div>
 
 

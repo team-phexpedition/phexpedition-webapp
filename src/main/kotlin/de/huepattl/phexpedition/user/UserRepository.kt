@@ -1,9 +1,7 @@
-package de.huepattl.phexpedition.user.boundary
+package de.huepattl.phexpedition.user
 
-import de.huepattl.phexpedition.user.entity.User
 import io.quarkus.hibernate.orm.panache.kotlin.PanacheRepositoryBase
 import io.quarkus.panache.common.Sort
-import java.time.Instant
 import javax.enterprise.context.ApplicationScoped
 
 enum class SortColumn { Login, DisplayName, ValidFrom, ValidUntil }

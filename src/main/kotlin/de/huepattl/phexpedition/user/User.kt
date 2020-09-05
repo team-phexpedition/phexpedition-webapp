@@ -1,13 +1,11 @@
-package de.huepattl.phexpedition.user.entity
+package de.huepattl.phexpedition.user
 
-import io.quarkus.elytron.security.common.BcryptUtil
 import io.quarkus.security.jpa.*
 import java.time.Instant
-import java.time.temporal.TemporalUnit
 import java.util.*
 import javax.persistence.Entity
+import javax.persistence.GeneratedValue
 import javax.persistence.Id
-import javax.persistence.Index
 import javax.persistence.Table
 
 /**
@@ -38,7 +36,7 @@ data class User(
         @Username
         var login: String = "admin",
 
-        @Password(PasswordType.CLEAR)
+        @Password(PasswordType.MCF)
         var password: String = "",
 
         /**
