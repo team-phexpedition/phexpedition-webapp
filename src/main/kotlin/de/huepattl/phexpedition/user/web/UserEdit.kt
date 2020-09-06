@@ -1,26 +1,32 @@
 package de.huepattl.phexpedition.user.web
 
 import de.huepattl.phexpedition.Converters
-import de.huepattl.phexpedition.user.UserRepository
 import de.huepattl.phexpedition.user.User
+import de.huepattl.phexpedition.user.UserRepository
 import io.quarkus.qute.Template
 import io.quarkus.qute.TemplateInstance
 import org.jboss.logging.Logger
 import org.jboss.logging.MDC
-import java.time.Instant
 import java.util.*
+import javax.enterprise.context.RequestScoped
 import javax.inject.Inject
 import javax.transaction.Transactional
 import javax.ws.rs.*
 import javax.ws.rs.core.MediaType
-import kotlin.collections.LinkedHashMap
 
+/**
+ * Model used for presenting a single [User] in view/edit/create view, used by
+ * [UserEdit] controller.
+ */
 data class UserEditModel(val id: String, val login: String, val displayName: String,
                          val validFrom: String, val validUntil: String,
                          val hidden: Boolean, val suspended: Boolean, val roles: String) {
 
     companion object {
 
+        /**
+         * Create model directly form [User] entity.
+         */
         fun from(entity: User): UserEditModel {
             return UserEditModel(entity.id, entity.login, entity.displayName,
                     Converters.toString(entity.validFrom),
@@ -34,21 +40,15 @@ data class UserEditModel(val id: String, val login: String, val displayName: Str
 }
 
 /**
- * FIXME: Somehow constructor injection throws `RESTEASY003190: Could not find constructor for class: de.huepattl.phexpedition.user.web.UserEdit`
- * while it is not thrown in [UserList]
+ * Controller for viewing, creating or editing a [User] entity.
  */
 @Path("/user/{id}")
 @Produces(MediaType.TEXT_HTML)
+@RequestScoped
 @Transactional
-class UserEdit {
+class UserEdit(@Inject val userRepository: UserRepository, @Inject val userEdit: Template) {
 
     private val log = Logger.getLogger(UserEdit::class.java)
-
-    @Inject
-    lateinit var userRepository: UserRepository
-
-    @Inject
-    lateinit var userEdit: Template
 
     @GET
     fun showUser(@PathParam("id") id: String): TemplateInstance {

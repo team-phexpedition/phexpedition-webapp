@@ -25,6 +25,10 @@ class App(@Inject val userRepository: UserRepository) {
 
     private val log = Logger.getLogger(App::class.java)
 
+    /**
+     * Create an admin user upon start if we cannot find one. The initial password
+     * then is logged to be used for the first login.
+     */
     @Transactional
     fun initAdminUser(@Observes event: StartupEvent) {
         if (userRepository.findByLogin("admin") == null) {
@@ -38,6 +42,9 @@ class App(@Inject val userRepository: UserRepository) {
 
 }
 
+/**
+ * Home page is rendered here.
+ */
 @Path("/")
 @Produces(MediaType.TEXT_HTML)
 class Home(val home: Template) {
@@ -50,9 +57,22 @@ class Home(val home: Template) {
 
 }
 
+/**
+ * Turned out that still datetime formats differ between web and Java, thus we
+ * handle conversion here until we found a better place.
+ */
 class Converters {
+
     companion object {
-        // Format YYYY-MM-DDTHH:mm, e.g. 2020-12-31T23:59
+
+        /**
+         * Returns a Java [Instant] for UTC based on a given local date time as passed
+         * by the client. Browsers with `<input type="datetime-local" ...>` useprovide format
+         * yyyy-MM-ddTHH:mm (e.g. 2020-12-31T23:59) while java is more precise and
+         * [Instant.parse] does not understand that pattern.
+         *
+         * TODO: allow for passing client time zone
+         */
         fun parseLocalDateTime(string: String, default: Instant): Instant {
             if (string == null) {
                 return default
@@ -64,11 +84,14 @@ class Converters {
             val localDateTime = LocalDateTime.of(year.toInt(), month.toInt(), day.toInt(), hour.toInt(), minute.toInt())
             val zonedDateTime = ZonedDateTime.of(localDateTime, ZoneId.of("UTC"))
 
-            val instant = Instant.from(zonedDateTime)
-
-            return instant
+            return Instant.from(zonedDateTime)
         }
 
+        /**
+         * Returns datetime in required format of `<input type="datetime-local" ...>`
+         *
+         * TODO: allow for passing client time zone
+         */
         fun toString(instant: Instant): String {
             val ldt = LocalDateTime.ofInstant(instant, ZoneOffset.UTC)
             val fmt = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
@@ -76,5 +99,6 @@ class Converters {
 
             return str
         }
+
     }
 }

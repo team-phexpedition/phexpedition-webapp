@@ -8,6 +8,9 @@ enum class SortColumn { Login, DisplayName, ValidFrom, ValidUntil }
 
 enum class SortDirection { Descending, Ascending }
 
+/**
+ * This repository provides access to [User] entities as persisted in the database configured.
+ */
 @ApplicationScoped
 class UserRepository : PanacheRepositoryBase<User, String> {
 
@@ -39,4 +42,5 @@ class UserRepository : PanacheRepositoryBase<User, String> {
             Sort.Direction.Descending
         }
     }
+
 }

@@ -23,7 +23,7 @@ import javax.ws.rs.core.MediaType
 
 
 /**
- * Model used for presenting the user in the list, used by [UserList].
+ * Model used for presenting the [User] in the list, used by [UserList] controller.
  */
 data class UserListModel(val id: String, val login: String, val displayName: String,
                          val validFrom: String, val validUntil: String) {
@@ -61,6 +61,9 @@ data class UserListModel(val id: String, val login: String, val displayName: Str
 //@RolesAllowed("admin")
 class UserList(@Inject val userRepository: UserRepository, @Inject val userList: Template) {
 
+    /**
+     * Show a filterable list of users found.
+     */
     @GET
     fun list(
             @QueryParam("filter") filter: String?,
