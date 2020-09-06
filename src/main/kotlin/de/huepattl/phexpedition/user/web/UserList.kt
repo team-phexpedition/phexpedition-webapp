@@ -1,5 +1,6 @@
 package de.huepattl.phexpedition.user.web
 
+import de.huepattl.phexpedition.Role
 import de.huepattl.phexpedition.user.SortColumn
 import de.huepattl.phexpedition.user.SortDirection
 import de.huepattl.phexpedition.user.User
@@ -9,7 +10,6 @@ import io.quarkus.qute.TemplateInstance
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
-import java.time.format.FormatStyle
 import java.util.*
 import javax.annotation.security.RolesAllowed
 import javax.enterprise.context.RequestScoped
@@ -58,7 +58,7 @@ data class UserListModel(val id: String, val login: String, val displayName: Str
 @Produces(MediaType.TEXT_HTML)
 @RequestScoped
 @Transactional
-//@RolesAllowed("admin")
+@RolesAllowed(Role.Administrator)
 class UserList(@Inject val userRepository: UserRepository, @Inject val userList: Template) {
 
     /**

@@ -1,8 +1,6 @@
 package de.huepattl.phexpedition.user.web
 
-import de.huepattl.phexpedition.Converters
-import de.huepattl.phexpedition.MessageType
-import de.huepattl.phexpedition.UiMessage
+import de.huepattl.phexpedition.*
 import de.huepattl.phexpedition.user.User
 import de.huepattl.phexpedition.user.UserRepository
 import io.quarkus.qute.Template
@@ -10,6 +8,7 @@ import io.quarkus.qute.TemplateInstance
 import org.jboss.logging.Logger
 import org.jboss.logging.MDC
 import java.util.*
+import javax.annotation.security.RolesAllowed
 import javax.enterprise.context.RequestScoped
 import javax.inject.Inject
 import javax.transaction.Transactional
@@ -49,6 +48,7 @@ data class UserEditModel(val id: String, val login: String, val displayName: Str
 @Produces(MediaType.TEXT_HTML)
 @RequestScoped
 @Transactional
+@RolesAllowed(Role.Administrator)
 class UserEdit(@Inject val userRepository: UserRepository, @Inject val userEdit: Template) {
 
     private val log = Logger.getLogger(UserEdit::class.java)
