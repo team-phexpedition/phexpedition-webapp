@@ -1,6 +1,8 @@
 package de.huepattl.phexpedition.user.web
 
 import de.huepattl.phexpedition.Converters
+import de.huepattl.phexpedition.MessageType
+import de.huepattl.phexpedition.UiMessage
 import de.huepattl.phexpedition.user.User
 import de.huepattl.phexpedition.user.UserRepository
 import io.quarkus.qute.Template
@@ -11,6 +13,7 @@ import java.util.*
 import javax.enterprise.context.RequestScoped
 import javax.inject.Inject
 import javax.transaction.Transactional
+import javax.validation.constraints.Max
 import javax.ws.rs.*
 import javax.ws.rs.core.MediaType
 
@@ -60,6 +63,7 @@ class UserEdit(@Inject val userRepository: UserRepository, @Inject val userEdit:
 
         return userEdit
                 .data("breadCrumbs", breadCrumbs(user))
+                .data("messages", emptyList<UiMessage>())
                 .data("user", UserEditModel.from(user!!))
     }
 
@@ -76,11 +80,22 @@ class UserEdit(@Inject val userRepository: UserRepository, @Inject val userEdit:
         MDC.put("transaction", UUID.randomUUID())
         log.info("Creating/updating user $login $displayName $validFrom")
 
+        val messages = mutableListOf<UiMessage>()
+
         var user = userRepository.findById(id)
         if (user == null) {
             log.info("User not found, creating one instead...")
-            user = User()
+            user = User(id = id, login = login, displayName = displayName)
             userRepository.persist(user)
+            messages.add(UiMessage(
+                    type = MessageType.Information,
+                    title = "User created",
+                    text = "User '$displayName' with login '$login}' has been created."))
+        } else {
+            messages.add(UiMessage(
+                    type = MessageType.Information,
+                    title = "User updated",
+                    text = "User '$displayName' with login '$login' has been updated."))
         }
 
         user.login = login
@@ -93,6 +108,7 @@ class UserEdit(@Inject val userRepository: UserRepository, @Inject val userEdit:
 
         return userEdit
                 .data("breadCrumbs", breadCrumbs(user))
+                .data("messages", messages)
                 .data("user", UserEditModel.from(user))
     }
 
