@@ -5,17 +5,45 @@
 
 <h3 class="ui dividing header">User {user.displayName}</h3>
 
+{#for message in messages}
+{message.type}
+{#if message.type.name eq 'Information'}
+<div class="ui positive icon message">
+    <i class="ui icon check circle"></i>
+    <div class="content">
+        <div class="header">
+            {message.title}
+        </div>
+        <p>{message.text}</p>
+    </div>
+</div>
+{/if}
+{#if message.type.name eq 'Error'}
+<div class="ui negative icon message">
+    <i class="ui icon exclamation triangle"></i>
+    <div class="content">
+        <div class="header">
+            ERROR: {message.title}
+        </div>
+        <p>{message.text}</p>
+    </div>
+</div>
+{/if}
+{/for}
+
 <form class="ui form" action="/user/{user.id}" method="post" name="user">
 
     <!-- User ID and login -->
     <div class="fields">
         <div class="three wide field">
             <label for="userId">User ID</label>
-            <input id="userId" name="userId" type="text" value="{user.id}" disabled>
+            <input id="userId" class="ui input" name="userId" type="text" value="{user.id}" disabled>
         </div>
         <div class="three wide field">
             <label for="login">Login</label>
-            <input id="login" name="login" type="text" value="{user.login}">
+            <div class="ui input error">
+                <input id="login" name="login" type="text" value="{user.login}">
+            </div>
         </div>
     </div>
 
@@ -67,7 +95,7 @@
 
     <input type="submit" class="ui primary button" value="Save">
 
-    <a href="/user/_all" class="ui button">Cancel and go back to user overview</a>
+    <a href="/user/_all" class="ui button">Back to user overview</a>
 
 </form>
 
