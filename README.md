@@ -1,4 +1,4 @@
-[![Build Actions Status](https://github.com/team-phexpedition/phexpedition-webapp/workflows/Java%20CI%20with%20Maven/badge.svg)](https://github.com/team-phexpedition/phexpedition-webapp/actions)
+[![Build Actions Status](https://github.com/team-phexpedition/phexpedition-webapp/workflows/Java%20CI%20with%20Maven/badge.svg)](https://github.com/team-phexpedition/phexpedition-webapp/actions) [![Sonarcloud Status](https://sonarcloud.io/api/project_badges/measure?project=team-phexpedition_phexpedition-webapp&metric=alert_status)](https://sonarcloud.io/dashboard?id=team-phexpedition_phexpedition-webapp)
 
 # Phexpedition
 
