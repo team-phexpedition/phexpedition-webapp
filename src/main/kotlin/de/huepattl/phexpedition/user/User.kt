@@ -1,5 +1,6 @@
 package de.huepattl.phexpedition.user
 
+import de.huepattl.phexpedition.Role
 import io.quarkus.security.jpa.*
 import java.time.Instant
 import java.util.*
@@ -49,7 +50,7 @@ data class User(
          * Comma separated list of roles/user groups assigned to user.
          */
         @Roles
-        var roles: String = "admin",
+        var roles: String = Role.Guest,
 
         /**
          * Valid from date, must be in the past in order to work for the user.

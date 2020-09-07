@@ -6,6 +6,7 @@ import io.quarkus.elytron.security.common.BcryptUtil
 import io.quarkus.qute.Template
 import io.quarkus.qute.TemplateInstance
 import io.quarkus.runtime.StartupEvent
+import io.quarkus.runtime.configuration.ProfileManager
 import org.jboss.logging.Logger
 import java.time.*
 import java.time.format.DateTimeFormatter
@@ -18,9 +19,21 @@ import javax.ws.rs.GET
 import javax.ws.rs.Path
 import javax.ws.rs.Produces
 import javax.ws.rs.core.MediaType
-import javax.ws.rs.core.Response
-import javax.ws.rs.ext.ExceptionMapper
-import javax.ws.rs.ext.Provider
+
+/**
+ * Available role definitions. Since we use them in annotations, we use costants because
+ * enums cannot be used in annotations such as [javax.annotation.security.RolesAllowed].
+ */
+class Role {
+    companion object {
+        const val Administrator = "administrator"
+        const val User = "user"
+        const val Guest = "guest"
+        const val Api = "api"
+        const val System = "system"
+    }
+
+}
 
 @Singleton
 class App(@Inject val userRepository: UserRepository) {
@@ -34,9 +47,13 @@ class App(@Inject val userRepository: UserRepository) {
     @Transactional
     fun initAdminUser(@Observes event: StartupEvent) {
         if (userRepository.findByLogin("admin") == null) {
-            val randomPassword = UUID.randomUUID().toString()
+            val randomPassword = if (ProfileManager.getActiveProfile() == "dev") {
+                "admin"
+            } else {
+                UUID.randomUUID().toString()
+            }
             userRepository.persist(User(login = "admin", displayName = "Admin User",
-                    password = BcryptUtil.bcryptHash(randomPassword), roles = "admin"))
+                    password = BcryptUtil.bcryptHash(randomPassword), roles = Role.Administrator))
             log.info("+++ !!! GENERATED ADMIN PASSWORD IS: '$randomPassword' !!!+++")
             log.info("+++ !!! Please change it immediately after loggin in.  !!!+++")
         }
@@ -53,8 +70,10 @@ class Home(val home: Template) {
 
     @GET
     fun show(): TemplateInstance {
-        return home.data("breadCrumbs", linkedMapOf(
-                Pair("Home", "/")))
+        return home
+                .data("title", "Phexpedition")
+                .data("breadCrumbs", linkedMapOf(
+                        Pair("Home", "/")))
     }
 
 }
@@ -97,7 +116,7 @@ class Converters {
         fun toString(instant: Instant): String {
             val ldt = LocalDateTime.ofInstant(instant, ZoneOffset.UTC)
             val fmt = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-            val str =  fmt.format(ldt).replace(' ', 'T')//"${ldt.year}-${ldt.monthValue}-${ldt.dayOfMonth}T${ldt.hour}:${ldt.minute}"
+            val str = fmt.format(ldt).replace(' ', 'T')//"${ldt.year}-${ldt.monthValue}-${ldt.dayOfMonth}T${ldt.hour}:${ldt.minute}"
 
             return str
         }
