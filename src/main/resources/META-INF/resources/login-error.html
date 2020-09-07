@@ -1,28 +1,20 @@
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>{#insert title}Default Title{/}</title>
+    <title>Authentication failure</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.css">
     <link rel="stylesheet" href="/custom.css">
     <script src="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.js"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 <body class="page">
-<body>
 <h1 style="background-color: #eeeeee; color: black; border-radius: 3px" class="rainbow">
     <i class="ui camera retro icon"></i>Phexpedition <span style="font-size: 0.5em">by Hüpattl!</span></h1>
-<div class="ui breadcrumb">
-    {#for crumb in breadCrumbs}
-        {#if crumb.value ne ''}
-            <a href="{crumb.value}" class="section">{crumb.key}</a>
-            <i class="right angle icon divider"></i>
-        {#else}
-            <div class="active section">{crumb.key}</div>
-        {/if}
-    {/for}
-</div>
-{#insert body}No body!{/}
+<h2>Login failed</h2>
+<p>
+    Your provided invalid user name or password. Click here to <a href="/login.html">try again</a>
+    or contact the administrator to reset your login.
+</p>
 </body>
 </html>

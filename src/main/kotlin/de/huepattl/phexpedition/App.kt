@@ -6,6 +6,7 @@ import io.quarkus.elytron.security.common.BcryptUtil
 import io.quarkus.qute.Template
 import io.quarkus.qute.TemplateInstance
 import io.quarkus.runtime.StartupEvent
+import io.quarkus.runtime.configuration.ProfileManager
 import org.jboss.logging.Logger
 import java.time.*
 import java.time.format.DateTimeFormatter
@@ -46,7 +47,11 @@ class App(@Inject val userRepository: UserRepository) {
     @Transactional
     fun initAdminUser(@Observes event: StartupEvent) {
         if (userRepository.findByLogin("admin") == null) {
-            val randomPassword = UUID.randomUUID().toString()
+            val randomPassword = if (ProfileManager.getActiveProfile() == "dev") {
+                "admin"
+            } else {
+                UUID.randomUUID().toString()
+            }
             userRepository.persist(User(login = "admin", displayName = "Admin User",
                     password = BcryptUtil.bcryptHash(randomPassword), roles = Role.Administrator))
             log.info("+++ !!! GENERATED ADMIN PASSWORD IS: '$randomPassword' !!!+++")
