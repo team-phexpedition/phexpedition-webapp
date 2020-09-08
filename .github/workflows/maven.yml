@@ -26,6 +26,12 @@ jobs:
       with:
         path: ~/.m2
         key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
-        restore-keys: ${{ runner.os }}-m2     
-    - name: Build with Maven
-      run: mvn -B package --file pom.xml
+        restore-keys: ${{ runner.os }}-m2
+    - name: Verify project (Maven)
+      run: mvn -B clean verify -DskipTests
+    - name: Compile project (Maven)
+      run: mvn -B compile -DskipTests
+    - name: Unit tests
+      run: mvn -B test
+    - name: Package artifact (Maven)
+      run: mvn -B package --file pom.xml  -DskipTests
