@@ -40,7 +40,7 @@ jobs:
         with:
           java-version: 11
       - run: mvn -B package --file pom.xml -DskipTests
-      - run: mkdir staging && cp target/webapp-*runner.jar staging
+      - run: mkdir staging && cp target/webapp-*runner.jar staging/phexpedition-webapp.jar
       - uses: actions/upload-artifact@v1
         with:
           name: Package
