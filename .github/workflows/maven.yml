@@ -46,7 +46,7 @@ jobs:
           name: Package
           path: staging
       - name: Docker - build image
-        run: docker build -t ${{ secrets.DOCKER_REPO }}:${{ GITHUB_RUN_ID }} -f src/main/docker/Dockerfile.jvm .
+        run: docker build -t ${{ secrets.DOCKER_REPO }}:$GITHUB_RUN_ID -f src/main/docker/Dockerfile.jvm .
       - name: Docker - login
         run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
       - name: Docker - upload to repository
