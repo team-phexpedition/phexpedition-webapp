@@ -1,6 +1,23 @@
 version: '3.1'
 
+networks:
+  backend:
+    driver: "bridge"
+
 services:
+
+  phexpedition:
+    image: bjblazko/phexpedition:latest
+    environment:
+      - 'quarkus.log.console.json=true'
+      - 'quarkus.datasource.db-kind=postgresql'
+      - 'quarkus.datasource.jdbc.url=jdbc:postgresql://postgres:5432/test'
+      - 'quarkus.datasource.username=test'
+      - 'quarkus.datasource.password=test'
+    ports:
+    - "8080:8080"
+    networks:
+      backend:
 
   postgres:
     image: postgres:latest
@@ -11,3 +28,5 @@ services:
       POSTGRES_PASSWORD: test
     ports:
     - "5432:5432"
+    networks:
+      backend:
