@@ -45,4 +45,8 @@ jobs:
         with:
           name: Package
           path: staging
-        
+      - name: Docker - build image
+        run: docker build -t ${{ secrets.DOCKER_REPO }}:latest .
+      - name: Docker - upload to repository
+        run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+        run: docker push ${{ secrets.DOCKER_REPO }}
