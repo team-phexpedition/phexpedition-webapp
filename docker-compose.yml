@@ -1,32 +1,33 @@
-version: '3.1'
-
-networks:
-  backend:
-    driver: "bridge"
+version: '3.8'
 
 services:
 
   phexpedition:
-    image: bjblazko/phexpedition:latest
+    container_name: phexpedition
+    image: bjblazko/phexpedition:37
     environment:
-      - 'quarkus.log.console.json=true'
-      - 'quarkus.datasource.db-kind=postgresql'
-      - 'quarkus.datasource.jdbc.url=jdbc:postgresql://postgres:5432/test'
-      - 'quarkus.datasource.username=test'
-      - 'quarkus.datasource.password=test'
+    - 'quarkus.banner.enabled=false'
+    - 'quarkus.log.console.json=false'
+    - 'quarkus.log.level=DEBUG'
+    - '-quarkus.datasource.db-kind=h2'
+    - '-quarkus.datasource.jdbc.url=jdbc:h2:mem:'
+    - 'quarkus.datasource.jdbc.driver=org.postgresql.Driver'
+    - 'quarkus.datasource.db-kind=postgresql'
+    - 'quarkus.datasource.jdbc.url=jdbc:postgresql://postgres:5432/phexpedition'
+    - 'quarkus.datasource.username=phexpedition'
+    - 'quarkus.datasource.password=test'
     ports:
     - "8080:8080"
-    networks:
-      backend:
+    depends_on:
+      - postgres
 
   postgres:
-    image: postgres:latest
+    container_name: postgres
+    image: library/postgres:12.4-alpine
     restart: always
     environment:
-      POSTGRES_DB: test
-      POSTGRES_USER: test
+      POSTGRES_DB: phexpedition
+      POSTGRES_USER: phexpedition
       POSTGRES_PASSWORD: test
     ports:
     - "5432:5432"
-    networks:
-      backend:
