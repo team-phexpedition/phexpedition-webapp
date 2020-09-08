@@ -90,7 +90,7 @@ class UserEdit(@Inject val userRepository: UserRepository, @Inject val userEdit:
             messages.add(UiMessage(
                     type = MessageType.Information,
                     title = "User created",
-                    text = "User '$displayName' with login '$login}' has been created."))
+                    text = "User '$displayName' with login '$login' has been created."))
         } else {
             messages.add(UiMessage(
                     type = MessageType.Information,

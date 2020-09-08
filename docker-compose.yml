@@ -4,15 +4,11 @@ services:
 
   phexpedition:
     container_name: phexpedition
-    image: bjblazko/phexpedition:37
+    image: bjblazko/phexpedition:latest
     environment:
     - 'quarkus.banner.enabled=false'
-    - 'quarkus.log.console.json=false'
-    - 'quarkus.log.level=DEBUG'
-    - '-quarkus.datasource.db-kind=h2'
-    - '-quarkus.datasource.jdbc.url=jdbc:h2:mem:'
-    - 'quarkus.datasource.jdbc.driver=org.postgresql.Driver'
-    - 'quarkus.datasource.db-kind=postgresql'
+    - 'quarkus.log.console.json=true'
+    - 'quarkus.log.level=INFO'
     - 'quarkus.datasource.jdbc.url=jdbc:postgresql://postgres:5432/phexpedition'
     - 'quarkus.datasource.username=phexpedition'
     - 'quarkus.datasource.password=test'
