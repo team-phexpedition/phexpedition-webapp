@@ -2,10 +2,19 @@
 <project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd"
          xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
     <modelVersion>4.0.0</modelVersion>
     <groupId>de.huepattl.phexpedition</groupId>
     <artifactId>webapp</artifactId>
     <version>1.0.0-SNAPSHOT</version>
+
+    <licenses>
+        <license>
+            <name>Apache License 2.0</name>
+            <url>https://www.apache.org/licenses/LICENSE-2.0</url>
+        </license>
+    </licenses>
+
     <properties>
         <compiler-plugin.version>3.8.1</compiler-plugin.version>
         <kotlin.version>1.3.72</kotlin.version>
@@ -18,7 +27,50 @@
         <quarkus.platform.group-id>io.quarkus</quarkus.platform.group-id>
         <quarkus.version>1.7.2.Final</quarkus.version>
         <surefire-plugin.version>2.22.2</surefire-plugin.version>
+
+        <!-- https://whatiscomingtomyhead.wordpress.com/2011/04/20/if-your-maven-site-build-is-too-slow/ -->
+        <dependency.locations.enabled>false</dependency.locations.enabled>
     </properties>
+
+    <organization>
+        <name>Team Phexpedition</name>
+        <url>https://github.com/team-phexpedition</url>
+    </organization>
+
+    <developers>
+        <developer>
+            <id>bjblazko</id>
+            <name>Timo "Blazko" Böwing</name>
+            <email>blazko@huepattl.de</email>
+            <organization>Hüpattl! Software</organization>
+            <roles>
+                <role>Developer</role>
+                <role>Maintainer</role>
+                <role>Administrator</role>
+            </roles>
+            <timezone>Europe/Berlin</timezone>
+            <properties>
+                <picUrl>https://lh3.google.com/u/0/ogw/ADGmqu-6pQ1kwIeJVe68SK2oNrWouhyNoIeS7X7pW6GC=s64-c-mo</picUrl>
+            </properties>
+        </developer>
+    </developers>
+
+    <scm>
+        <connection>scm:git@github.com:team-phexpedition/phexpedition-webapp.git</connection>
+        <tag>HEAD</tag>
+        <url>https://github.com/team-phexpedition/phexpedition-webapp</url>
+    </scm>
+
+    <issueManagement>
+        <system>Guthub Issues</system>
+        <url>https://github.com/team-phexpedition/phexpedition-webapp/issues</url>
+    </issueManagement>
+
+    <ciManagement>
+        <system>Github Actions</system>
+        <url>https://github.com/team-phexpedition/phexpedition-webapp/actions</url>
+    </ciManagement>
+
     <dependencyManagement>
         <dependencies>
             <dependency>
@@ -30,6 +82,7 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
+
     <dependencies>
         <dependency>
             <groupId>io.quarkus</groupId>
@@ -90,6 +143,7 @@
             <artifactId>quarkus-resteasy-qute</artifactId>
         </dependency>
     </dependencies>
+
     <build>
         <sourceDirectory>src/main/kotlin</sourceDirectory>
         <testSourceDirectory>src/test/kotlin</testSourceDirectory>
@@ -158,9 +212,24 @@
                     </pluginOptions>
                 </configuration>
             </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-site-plugin</artifactId>
+                <version>3.8.2</version>
+            </plugin>
+            <plugin>
+                <!-- See: https://stackoverflow.com/questions/51091539/maven-site-plugins-3-3-java-lang-classnotfoundexception-org-apache-maven-doxia -->
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-project-info-reports-plugin</artifactId>
+                <version>2.9</version>
+            </plugin>
+
         </plugins>
     </build>
+
     <profiles>
+
         <profile>
             <id>native</id>
             <activation>
@@ -199,4 +268,5 @@
             </properties>
         </profile>
     </profiles>
+
 </project>
