@@ -14,7 +14,9 @@ import javax.inject.Inject
 import javax.transaction.Transactional
 import javax.validation.constraints.Max
 import javax.ws.rs.*
+import javax.ws.rs.core.Context
 import javax.ws.rs.core.MediaType
+import javax.ws.rs.core.SecurityContext
 
 /**
  * Model used for presenting a single [User] in view/edit/create view, used by
@@ -48,13 +50,23 @@ data class UserEditModel(val id: String, val login: String, val displayName: Str
 @Produces(MediaType.TEXT_HTML)
 @RequestScoped
 @Transactional
-@RolesAllowed(Role.Administrator)
+@RolesAllowed(Role.Administrator, Role.User)
 class UserEdit(@Inject val userRepository: UserRepository, @Inject val userEdit: Template) {
 
     private val log = Logger.getLogger(UserEdit::class.java)
 
     @GET
-    fun showUser(@PathParam("id") id: String): TemplateInstance {
+    fun showUser(
+            @PathParam("id") id: String,
+            @Context securityContext: SecurityContext
+    ): TemplateInstance {
+        val loginUser = userRepository.findByLogin(securityContext?.userPrincipal?.name ?: "")
+        if (!loginUser?.roles?.contains(Role.Administrator)!!) {
+            if (id != loginUser.id ?: "") {
+                throw IllegalAccessException("You are not authorized to edit this user!")
+            }
+        }
+
         val user = if (id == "_new") {
             User(login = "")
         } else {
@@ -65,6 +77,7 @@ class UserEdit(@Inject val userRepository: UserRepository, @Inject val userEdit:
                 .data("breadCrumbs", breadCrumbs(user))
                 .data("messages", emptyList<UiMessage>())
                 .data("user", UserEditModel.from(user!!))
+                .data("me", App.whoAmI(securityContext, userRepository))
     }
 
     @POST
@@ -75,14 +88,18 @@ class UserEdit(@Inject val userRepository: UserRepository, @Inject val userEdit:
             @FormParam("switches") switches: List<String?>?,
             @FormParam("roles") roles: String,
             @FormParam("validFrom") validFrom: String,
-            @FormParam("validUntil") validUntil: String
+            @FormParam("validUntil") validUntil: String,
+            @Context securityContext: SecurityContext
     ): TemplateInstance {
         MDC.put("transaction", UUID.randomUUID())
         log.info("Creating/updating user $login $displayName $validFrom")
 
+        val me = App.whoAmI(securityContext, userRepository)
+
         val messages = mutableListOf<UiMessage>()
 
         var user = userRepository.findById(id)
+
         if (user == null) {
             log.info("User not found, creating one instead...")
             user = User(id = id, login = login, displayName = displayName)
@@ -110,14 +127,21 @@ class UserEdit(@Inject val userRepository: UserRepository, @Inject val userEdit:
                 .data("breadCrumbs", breadCrumbs(user))
                 .data("messages", messages)
                 .data("user", UserEditModel.from(user))
+                .data("me", me)
     }
 
     private fun breadCrumbs(user: User?): LinkedHashMap<String, String> {
-        return linkedMapOf(
-                Pair("Home", "/"),
-                Pair("Users", "/user/_all"),
-                Pair(user?.displayName ?: "new", "")
-        )
+        return if (user!!.isAdmin()) {
+            linkedMapOf(
+                    Pair("Home", "/"),
+                    Pair("Users", "/user/_all"),
+                    Pair(user?.displayName ?: "new", "")
+            )
+        } else {
+            linkedMapOf(
+                    Pair("Home", "/"),
+                    Pair(user?.displayName ?: "new", ""))
+        }
     }
 
 }

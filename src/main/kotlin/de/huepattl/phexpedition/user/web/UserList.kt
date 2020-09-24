@@ -1,5 +1,6 @@
 package de.huepattl.phexpedition.user.web
 
+import de.huepattl.phexpedition.App
 import de.huepattl.phexpedition.Role
 import de.huepattl.phexpedition.user.SortColumn
 import de.huepattl.phexpedition.user.SortDirection
@@ -19,7 +20,9 @@ import javax.ws.rs.GET
 import javax.ws.rs.Path
 import javax.ws.rs.Produces
 import javax.ws.rs.QueryParam
+import javax.ws.rs.core.Context
 import javax.ws.rs.core.MediaType
+import javax.ws.rs.core.SecurityContext
 
 
 /**
@@ -68,7 +71,8 @@ class UserList(@Inject val userRepository: UserRepository, @Inject val userList:
     fun list(
             @QueryParam("filter") filter: String?,
             @QueryParam("sortColumn") sortColumn: String?,
-            @QueryParam("sortDirection") sortDirection: String?
+            @QueryParam("sortDirection") sortDirection: String?,
+            @Context securityContext: SecurityContext
     ): TemplateInstance {
         val allUsers = userRepository.findAny(
                 filter ?: "",
@@ -86,6 +90,7 @@ class UserList(@Inject val userRepository: UserRepository, @Inject val userList:
                 .data("filter", filter)
                 .data("sortColumn", sortColumn)
                 .data("sortDirection", sortDirection)
+                .data("me", App.whoAmI(securityContext, userRepository))
     }
 
 }

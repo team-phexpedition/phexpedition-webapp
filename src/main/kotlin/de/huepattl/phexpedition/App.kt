@@ -8,9 +8,11 @@ import io.quarkus.qute.TemplateInstance
 import io.quarkus.runtime.StartupEvent
 import io.quarkus.runtime.configuration.ProfileManager
 import org.jboss.logging.Logger
+import java.net.URI
 import java.time.*
 import java.time.format.DateTimeFormatter
 import java.util.*
+import javax.annotation.security.RolesAllowed
 import javax.enterprise.event.Observes
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -18,7 +20,10 @@ import javax.transaction.Transactional
 import javax.ws.rs.GET
 import javax.ws.rs.Path
 import javax.ws.rs.Produces
+import javax.ws.rs.core.Context
 import javax.ws.rs.core.MediaType
+import javax.ws.rs.core.Response
+import javax.ws.rs.core.SecurityContext
 
 /**
  * Available role definitions. Since we use them in annotations, we use costants because
@@ -59,6 +64,32 @@ class App(@Inject val userRepository: UserRepository) {
         }
     }
 
+    @Transactional
+    fun initDefaultUser(@Observes event: StartupEvent) {
+        val user = User(login = "user", displayName = "Default User",
+                password = BcryptUtil.bcryptHash("user"), roles = Role.User)
+        userRepository.persist(user)
+        log.info("+++ !!! GENERATED DEFAULT USER PASSWORD IS: 'user' !!!+++")
+        log.info("+++ !!! Please change it immediately after loggin in.  !!!+++")
+    }
+
+    companion object {
+        fun whoAmI(securityContext: SecurityContext, userRepository: UserRepository): User? {
+            val login = securityContext?.userPrincipal?.name ?: ""
+            return userRepository.findByLogin(login) ?: null
+        }
+
+        fun myselfOrAdmin(me: User, id: String): Boolean {
+            if (me.isAdmin()) {
+                return true
+            }
+            if (me.id == id) {
+                return true
+            }
+            return false
+        }
+    }
+
 }
 
 /**
@@ -66,14 +97,30 @@ class App(@Inject val userRepository: UserRepository) {
  */
 @Path("/")
 @Produces(MediaType.TEXT_HTML)
-class Home(val home: Template) {
+class Home(@Inject val userRepository: UserRepository, @Inject val home: Template) {
 
     @GET
-    fun show(): TemplateInstance {
+    fun show(@Context securityContext: SecurityContext): TemplateInstance {
         return home
                 .data("title", "Phexpedition")
                 .data("breadCrumbs", linkedMapOf(
                         Pair("Home", "/")))
+                .data("me", App.whoAmI(securityContext, userRepository))
+    }
+
+}
+
+/**
+ * Home page is rendered here.
+ */
+@Path("/login")
+@Produces(MediaType.TEXT_HTML)
+@RolesAllowed(Role.User, Role.Administrator)
+class Login {
+
+    @GET
+    fun show(): Response {
+        return Response.temporaryRedirect(URI.create("/")).build()
     }
 
 }

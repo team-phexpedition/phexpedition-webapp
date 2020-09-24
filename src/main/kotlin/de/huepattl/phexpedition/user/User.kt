@@ -88,6 +88,11 @@ data class User(
         var hidden: Boolean = false
 
 ) {
+
+    fun isAdmin(): Boolean {
+        return roles.contains(Role.Administrator);
+    }
+
     companion object {
         fun random(): User {
             return User(login = "rnd-${System.currentTimeMillis()}", displayName = "name-${UUID.randomUUID().toString()}")

@@ -26,7 +26,7 @@
         <quarkus.platform.artifact-id>quarkus-universe-bom</quarkus.platform.artifact-id>
         <quarkus.platform.group-id>io.quarkus</quarkus.platform.group-id>
         <quarkus.version>1.8.1.Final</quarkus.version>
-        <surefire-plugin.version>2.22.2</surefire-plugin.version>
+        <surefire-plugin.version>3.0.0-M5</surefire-plugin.version>
 
         <!-- https://whatiscomingtomyhead.wordpress.com/2011/04/20/if-your-maven-site-build-is-too-slow/ -->
         <dependency.locations.enabled>false</dependency.locations.enabled>
