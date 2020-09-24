@@ -8,9 +8,24 @@
 <div class="ui placeholder segment">
     <div class="ui icon header">
         <i class="person icon"></i>
-        Currently, there is only a little user management.
+        Hey there!
     </div>
-    <a href="/user/_all" class="ui primary button">Manage users</a>
+    {#if me eq null}
+        <a href="/login" class="ui primary button">Login</a>
+    {/if}
+    {#if me != null}
+        {#if me.roles == 'administrator'}
+            <div>
+                <a href="/user/_all" class="ui primary button">Manage users...</a>
+                <br>
+            </div>
+        {/if}
+        {#if me.roles == 'user' or user.roles == 'administrator'}
+            <div>
+                <a href="/user/{me.id}" class="ui primary button">Manage my profile...</a>
+            </div>
+        {/if}
+    {/if}
 </div>
 
 {/body}

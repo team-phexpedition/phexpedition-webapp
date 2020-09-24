@@ -3,7 +3,11 @@
 
 {#body}
 
-<h3 class="ui dividing header">User {user.displayName}</h3>
+<h3 class="ui dividing header">{user.displayName}</h3>
+
+<p>
+    <a href="/user/{user.id}/password" class="ui negative button">Change password...</a>
+</p>
 
 {#for message in messages}
 {#if message.type.name eq 'Information'}
@@ -93,8 +97,9 @@
     </div>
 
     <input type="submit" class="ui primary button" value="Save">
-
-    <a href="/user/_all" class="ui button">Back to user overview</a>
+    {#if me.isAdmin}
+    <a href="/user/_all" class="ui button">Back to user overview...</a>
+    {/if}
 
 </form>
 

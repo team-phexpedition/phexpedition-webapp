@@ -2,20 +2,20 @@ version: '3.8'
 
 services:
 
-  phexpedition:
-    container_name: phexpedition
-    image: bjblazko/phexpedition:latest
-    environment:
-    - 'quarkus.banner.enabled=false'
-    - 'quarkus.log.console.json=true'
-    - 'quarkus.log.level=INFO'
-    - 'quarkus.datasource.jdbc.url=jdbc:postgresql://postgres:5432/phexpedition'
-    - 'quarkus.datasource.username=phexpedition'
-    - 'quarkus.datasource.password=test'
-    ports:
-    - "8080:8080"
-    depends_on:
-      - postgres
+#  phexpedition:
+#    container_name: phexpedition
+#    image: bjblazko/phexpedition:latest
+#    environment:
+#    - 'quarkus.banner.enabled=false'
+#    - 'quarkus.log.console.json=true'
+#    - 'quarkus.log.level=INFO'
+#    - 'quarkus.datasource.jdbc.url=jdbc:postgresql://postgres:5432/phexpedition'
+#    - 'quarkus.datasource.username=phexpedition'
+#    - 'quarkus.datasource.password=test'
+#    ports:
+#    - "8080:8080"
+#    depends_on:
+#      - postgres
 
   postgres:
     container_name: postgres
