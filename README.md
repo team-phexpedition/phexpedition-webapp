@@ -1,4 +1,5 @@
-[![Sonarcloud Status](https://sonarcloud.io/api/project_badges/measure?project=team-phexpedition_phexpedition-webapp&metric=alert_status)](https://sonarcloud.io/dashboard?id=team-phexpedition_phexpedition-webapp) [![Build Actions Status](https://github.com/team-phexpedition/phexpedition-webapp/workflows/Java%20CI%20with%20Maven/badge.svg)](https://github.com/team-phexpedition/phexpedition-webapp/actions) ![Build and publish image to Docker Hub on release](https://github.com/team-phexpedition/phexpedition-webapp/workflows/Build%20and%20publish%20image%20to%20Docker%20Hub%20on%20release/badge.svg) 
+[![Sonarcloud Status](https://sonarcloud.io/api/project_badges/measure?project=team-phexpedition_phexpedition-webapp&metric=alert_status)](https://sonarcloud.io/dashboard?id=team-phexpedition_phexpedition-webapp) [![Build Actions Status](https://github.com/team-phexpedition/phexpedition-webapp/workflows/Java%20CI%20with%20Maven/badge.svg)](https://github.com/team-phexpedition/phexpedition-webapp/actions) ![Docker Hub image](https://github.com/team-phexpedition/phexpedition-webapp/workflows/Docker%20Hub%20image/badge.svg)
+
 # Phexpedition
 
 This project uses Quarkus, the Supersonic Subatomic Java Framework.
