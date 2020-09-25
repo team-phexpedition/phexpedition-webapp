@@ -42,19 +42,23 @@
 {#if userList ne null}
 <h4 class="ui dividing header">Results</h4>
 <table class="ui very basic collapsing celled table">
+    <caption>
+        Table showing found users according to filter. Users are sortable and by clicking a listed user,
+        you can edit the user details including password change on another detail screen.
+    </caption>
     <thead>
     <tr>
-        <th>User</th>
-        <th>Valid from</th>
-        <th>until</th>
+        <th id="col_user">User</th>
+        <th id="col_validFrom">Valid from</th>
+        <th id="col_validUntil">until</th>
     </tr>
     </thead>
     <tbody>
     {#for currentUser in userList}
     <tr>
-        <td>
+        <td headers="col_user">
             <h4 class="ui image header">
-                <img src="/default-user.png" class="ui mini rounded image">
+                <img src="/default-user.png" alt="User avatar or logo" class="ui mini rounded image">
                 <div class="content">
                     {currentUser.displayName}
                     <div class="sub header">
@@ -63,10 +67,10 @@
                 </div>
             </h4>
         </td>
-        <td>
+        <td headers="col_validFrom">
             {currentUser.validFrom}
         </td>
-        <td>
+        <td headers="col_validUntil">
             {currentUser.validUntil}
         </td>
     </tr>
