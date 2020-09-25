@@ -12,36 +12,11 @@ import javax.annotation.security.RolesAllowed
 import javax.enterprise.context.RequestScoped
 import javax.inject.Inject
 import javax.transaction.Transactional
-import javax.validation.constraints.Max
 import javax.ws.rs.*
 import javax.ws.rs.core.Context
 import javax.ws.rs.core.MediaType
 import javax.ws.rs.core.SecurityContext
 
-/**
- * Model used for presenting a single [User] in view/edit/create view, used by
- * [UserEdit] controller.
- */
-data class UserEditModel(val id: String, val login: String, val displayName: String,
-                         val validFrom: String, val validUntil: String,
-                         val hidden: Boolean, val suspended: Boolean, val roles: String) {
-
-    companion object {
-
-        /**
-         * Create model directly form [User] entity.
-         */
-        fun from(entity: User): UserEditModel {
-            return UserEditModel(entity.id, entity.login, entity.displayName,
-                    Converters.toString(entity.validFrom),
-                    Converters.toString(entity.validUntil),
-                    entity.hidden, entity.suspended,
-                    entity.roles)
-        }
-
-    }
-
-}
 
 /**
  * Controller for viewing, creating or editing a [User] entity.
@@ -55,16 +30,66 @@ class UserEdit(@Inject val userRepository: UserRepository, @Inject val userEdit:
 
     private val log = Logger.getLogger(UserEdit::class.java)
 
+    /**
+     * Model used for presenting a single [User] in view/edit/create view, used by
+     * [UserEdit] controller. Using a data class did not work with RESTEasy with Kotlin.
+     */
+    class UserEditModel {
+        @PathParam("id")
+        lateinit var id: String
+
+        @FormParam("login")
+        lateinit var login: String
+
+        @FormParam("displayName")
+        lateinit var displayName: String
+
+        @FormParam("validFrom")
+        lateinit var validFrom: String
+
+        @FormParam("validUntil")
+        lateinit var validUntil: String
+        var hidden: Boolean = false
+        var suspended: Boolean = false
+
+        @FormParam("roles")
+        lateinit var roles: String
+
+        @FormParam("switches")
+        var switches: List<String?>? = null
+
+        companion object {
+
+            /**
+             * Create model directly form [User] entity.
+             */
+            fun from(entity: User): UserEditModel {
+                var model = UserEditModel()
+                model.id = entity.id
+                model.login = entity.login
+                model.displayName = entity.displayName
+                model.validFrom = Converters.toString(entity.validFrom)
+                model.validUntil = Converters.toString(entity.validUntil)
+                model.hidden = entity.hidden
+                model.suspended = entity.suspended
+                model.roles = entity.roles
+
+                return model
+            }
+        }
+    }
+
+    /**
+     * Retrieve and show user by given uniqie identifier.
+     */
     @GET
     fun showUser(
             @PathParam("id") id: String,
             @Context securityContext: SecurityContext
     ): TemplateInstance {
         val loginUser = userRepository.findByLogin(securityContext?.userPrincipal?.name ?: "")
-        if (!loginUser?.roles?.contains(Role.Administrator)!!) {
-            if (id != loginUser.id ?: "") {
-                throw IllegalAccessException("You are not authorized to edit this user!")
-            }
+        if (!loginUser?.roles?.contains(Role.Administrator)!! && id != loginUser.id ?: "") {
+            throw IllegalAccessException("You are not authorized to edit this user!")
         }
 
         val user = if (id == "_new") {
@@ -80,48 +105,45 @@ class UserEdit(@Inject val userRepository: UserRepository, @Inject val userEdit:
                 .data("me", App.whoAmI(securityContext, userRepository))
     }
 
+    /**
+     * Creates or updates the user passed.
+     */
     @POST
     fun update(
-            @PathParam("id") id: String,
-            @FormParam("login") login: String,
-            @FormParam("displayName") displayName: String,
-            @FormParam("switches") switches: List<String?>?,
-            @FormParam("roles") roles: String,
-            @FormParam("validFrom") validFrom: String,
-            @FormParam("validUntil") validUntil: String,
+            @BeanParam userEditModel: UserEditModel,
             @Context securityContext: SecurityContext
     ): TemplateInstance {
         MDC.put("transaction", UUID.randomUUID())
-        log.info("Creating/updating user $login $displayName $validFrom")
+        log.info("Creating/updating user $userEditModel.login $$userEditModel.displayName $userEditModel.validFrom")
 
         val me = App.whoAmI(securityContext, userRepository)
 
         val messages = mutableListOf<UiMessage>()
 
-        var user = userRepository.findById(id)
+        var user = userRepository.findById(userEditModel.id)
 
         if (user == null) {
             log.info("User not found, creating one instead...")
-            user = User(id = id, login = login, displayName = displayName)
+            user = User(id = userEditModel.id, login = userEditModel.login, displayName = userEditModel.displayName)
             userRepository.persist(user)
             messages.add(UiMessage(
                     type = MessageType.Information,
                     title = "User created",
-                    text = "User '$displayName' with login '$login' has been created."))
+                    text = "User '${userEditModel.displayName}' with login '${userEditModel.login}' has been created."))
         } else {
             messages.add(UiMessage(
                     type = MessageType.Information,
                     title = "User updated",
-                    text = "User '$displayName' with login '$login' has been updated."))
+                    text = "User '${userEditModel.displayName}' with login '${userEditModel.login}' has been updated."))
         }
 
-        user.login = login
-        user.displayName = displayName
-        user.suspended = switches?.contains("suspended") ?: false
-        user.hidden = switches?.contains("hidden") ?: false
-        user.roles = roles
-        user.validFrom = Converters.parseLocalDateTime(validFrom, user.validFrom)
-        user.validUntil = Converters.parseLocalDateTime(validUntil, user.validUntil)
+        user.login = userEditModel.login
+        user.displayName = userEditModel.displayName
+        user.suspended = userEditModel.switches?.contains("suspended") ?: false
+        user.hidden = userEditModel.switches?.contains("hidden") ?: false
+        user.roles = userEditModel.roles
+        user.validFrom = Converters.parseLocalDateTime(userEditModel.validFrom, user.validFrom)
+        user.validUntil = Converters.parseLocalDateTime(userEditModel.validUntil, user.validUntil)
 
         return userEdit
                 .data("breadCrumbs", breadCrumbs(user))
@@ -130,7 +152,7 @@ class UserEdit(@Inject val userRepository: UserRepository, @Inject val userEdit:
                 .data("me", me)
     }
 
-    private fun breadCrumbs(user: User?): LinkedHashMap<String, String> {
+    fun breadCrumbs(user: User?): LinkedHashMap<String, String> {
         return if (user!!.isAdmin()) {
             linkedMapOf(
                     Pair("Home", "/"),

@@ -25,6 +25,7 @@ import javax.ws.rs.core.SecurityContext
 class PasswordChange(
         @Inject val userRepository: UserRepository,
         @Inject val passwordChange: Template,
+        @Inject val userEdit: UserEdit,
         @ConfigProperty(name = "phexpedition.auth.minPasswordLength", defaultValue = "10") val minPasswordLength: String) {
 
     @GET
@@ -38,7 +39,7 @@ class PasswordChange(
 
         return passwordChange
                 .data("user", user)
-                .data("breadCrumbs", breadCrumbs(user))
+                .data("breadCrumbs", userEdit.breadCrumbs(user))
                 .data("messages", messages)
                 .data("me", App.whoAmI(securityContext, userRepository))
     }
@@ -85,22 +86,8 @@ class PasswordChange(
         return passwordChange
                 .data("me", me)
                 .data("user", user)
-                .data("breadCrumbs", breadCrumbs(user))
+                .data("breadCrumbs", userEdit.breadCrumbs(user))
                 .data("messages", messages)
-    }
-
-    private fun breadCrumbs(user: User?): LinkedHashMap<String, String> {
-        return if (user!!.isAdmin()) {
-            linkedMapOf(
-                    Pair("Home", "/"),
-                    Pair("Users", "/user/_all"),
-                    Pair(user?.displayName ?: "new", "")
-            )
-        } else {
-            linkedMapOf(
-                    Pair("Home", "/"),
-                    Pair(user?.displayName ?: "new", ""))
-        }
     }
 
 }
