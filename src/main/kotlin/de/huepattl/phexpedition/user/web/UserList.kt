@@ -1,13 +1,13 @@
 package de.huepattl.phexpedition.user.web
 
-import de.huepattl.phexpedition.App
-import de.huepattl.phexpedition.Role
+import de.huepattl.phexpedition.*
 import de.huepattl.phexpedition.user.SortColumn
 import de.huepattl.phexpedition.user.SortDirection
-import de.huepattl.phexpedition.user.User
+import de.huepattl.phexpedition.user.UserEntity
 import de.huepattl.phexpedition.user.UserRepository
 import io.quarkus.qute.Template
 import io.quarkus.qute.TemplateInstance
+import org.jboss.logging.Logger
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -26,7 +26,7 @@ import javax.ws.rs.core.SecurityContext
 
 
 /**
- * Model used for presenting the [User] in the list, used by [UserList] controller.
+ * Model used for presenting the [UserEntity] in the list, used by [UserList] controller.
  */
 data class UserListModel(val id: String, val login: String, val displayName: String,
                          val validFrom: String, val validUntil: String) {
@@ -34,9 +34,9 @@ data class UserListModel(val id: String, val login: String, val displayName: Str
     companion object {
 
         /**
-         * Create a list user from the basing entity [User].
+         * Create a list user from the basing entity [UserEntity].
          */
-        fun from(entity: User): UserListModel {
+        fun from(entity: UserEntity): UserListModel {
             return UserListModel(entity.id, entity.login, entity.displayName,
                     formatDate(entity.validFrom), formatDate(entity.validUntil))
         }
@@ -64,6 +64,8 @@ data class UserListModel(val id: String, val login: String, val displayName: Str
 @RolesAllowed(Role.Administrator)
 class UserList(@Inject val userRepository: UserRepository, @Inject val userList: Template) {
 
+    private val log = Logger.getLogger(UserList::class.java)
+
     /**
      * Show a filterable list of users found.
      */
@@ -74,23 +76,34 @@ class UserList(@Inject val userRepository: UserRepository, @Inject val userList:
             @QueryParam("sortDirection") sortDirection: String?,
             @Context securityContext: SecurityContext
     ): TemplateInstance {
+
+        transactionStart(whoAmI(securityContext, userRepository))
+
+        log.info("Finding users for '$filter'")
+
         val allUsers = userRepository.findAny(
                 filter ?: "",
                 SortColumn.valueOf(sortColumn ?: "Login"),
                 SortDirection.valueOf(sortDirection ?: "Ascending")).map { UserListModel.from(it) }
+
+        log.info("Found ${allUsers.size} entries")
 
         val breadCrumbs = linkedMapOf(
                 Pair("Home", "/"),
                 Pair("Users", "")
         )
 
-        return userList
+        val template = userList
                 .data("breadCrumbs", breadCrumbs)
                 .data("userList", allUsers)
                 .data("filter", filter)
                 .data("sortColumn", sortColumn)
                 .data("sortDirection", sortDirection)
-                .data("me", App.whoAmI(securityContext, userRepository))
+                .data("me", whoAmI(securityContext, userRepository))
+
+        transactionStop()
+
+        return template
     }
 
 }

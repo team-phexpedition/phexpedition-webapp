@@ -9,17 +9,17 @@ enum class SortColumn { Login, DisplayName, ValidFrom, ValidUntil }
 enum class SortDirection { Descending, Ascending }
 
 /**
- * This repository provides access to [User] entities as persisted in the database configured.
+ * This repository provides access to [UserEntity] entities as persisted in the database configured.
  */
 @ApplicationScoped
-class UserRepository : PanacheRepositoryBase<User, String> {
+class UserRepository : PanacheRepositoryBase<UserEntity, String> {
 
-    fun findByLogin(login: String): User? {
+    fun findByLogin(login: String): UserEntity? {
         return find("login", login).firstResult()
     }
 
     fun findAny(filter: String, sortColumn: SortColumn = SortColumn.Login,
-                sortDirection: SortDirection = SortDirection.Ascending): List<User> {
+                sortDirection: SortDirection = SortDirection.Ascending): List<UserEntity> {
 
         val params = mutableMapOf(
                 Pair("filter", "%${filter.toLowerCase()}%")
