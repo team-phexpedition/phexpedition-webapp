@@ -58,6 +58,9 @@ class UserEdit(@Inject val userRepository: UserRepository, @Inject val userEdit:
         @FormParam("switches")
         var switches: List<String?>? = null
 
+        @FormParam("timeZone")
+        var timeZone: String = "UTC"
+
         companion object {
 
             /**
@@ -73,6 +76,7 @@ class UserEdit(@Inject val userRepository: UserRepository, @Inject val userEdit:
                 model.hidden = entity.hidden
                 model.suspended = entity.suspended
                 model.roles = entity.roles
+                model.timeZone = entity.timeZone
 
                 return model
             }
@@ -106,6 +110,7 @@ class UserEdit(@Inject val userRepository: UserRepository, @Inject val userEdit:
         val template = userEdit
                 .data("breadCrumbs", breadCrumbs(user))
                 .data("messages", emptyList<UiMessage>())
+                .data("timeZones", timeZones())
                 .data("user", UserEditModel.from(user!!))
                 .data("me", whoAmI(securityContext, userRepository))
 
@@ -123,7 +128,7 @@ class UserEdit(@Inject val userRepository: UserRepository, @Inject val userEdit:
             @Context securityContext: SecurityContext
     ): TemplateInstance {
         transactionStart(whoAmI(securityContext, userRepository))
-        log.info("Creating/updating user $userEditModel.login $$userEditModel.displayName $userEditModel.validFrom")
+        log.info("Creating/updating user ${userEditModel.login} ${userEditModel.displayName} ${userEditModel.validFrom}")
 
         val me = whoAmI(securityContext, userRepository)
 
@@ -147,13 +152,16 @@ class UserEdit(@Inject val userRepository: UserRepository, @Inject val userEdit:
                     text = "User '${userEditModel.displayName}' with login '${userEditModel.login}' has been updated."))
         }
 
-        user.login = userEditModel.login
-        user.displayName = userEditModel.displayName
-        user.suspended = userEditModel.switches?.contains("suspended") ?: false
-        user.hidden = userEditModel.switches?.contains("hidden") ?: false
-        user.roles = userEditModel.roles
-        user.validFrom = parseLocalDateTime(userEditModel.validFrom, user.validFrom)
-        user.validUntil = parseLocalDateTime(userEditModel.validUntil, user.validUntil)
+        with (user) {
+            login = userEditModel.login
+            displayName = userEditModel.displayName
+            suspended = userEditModel.switches?.contains("suspended") ?: false
+            hidden = userEditModel.switches?.contains("hidden") ?: false
+            roles = userEditModel.roles
+            validFrom = parseLocalDateTime(userEditModel.validFrom, user.validFrom, user.timeZone)
+            validUntil = parseLocalDateTime(userEditModel.validUntil, user.validUntil, user.timeZone)
+            timeZone = userEditModel.timeZone
+        }
 
         log.info("Persisting user $user")
 
@@ -161,6 +169,7 @@ class UserEdit(@Inject val userRepository: UserRepository, @Inject val userEdit:
                 .data("breadCrumbs", breadCrumbs(user))
                 .data("messages", messages)
                 .data("user", UserEditModel.from(user))
+                .data("timeZones", timeZones())
                 .data("me", me)
 
         transactionStop()

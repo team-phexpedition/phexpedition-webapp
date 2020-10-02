@@ -84,7 +84,9 @@ data class UserEntity(
          * Thus, you may create a 'silent' user, which still can login (given it is not suspended and
          * validity dates are in range).
          */
-        var hidden: Boolean = false
+        var hidden: Boolean = false,
+
+        var timeZone: String = "UTC"
 
 ) {
 

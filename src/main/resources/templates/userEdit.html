@@ -70,6 +70,21 @@
         </div>
     </div>
 
+    <!-- Validity range -->
+    <div class="fields">
+        <div class="three wide field">
+            <label for="timeZone">Time zone</label>
+            <select class="ui fluid dropdown" id="timeZone" name="timeZone">
+                {#for zone in timeZones}
+                <option value="{zone.id}" {#if user.timeZone eq zone.id}selected{/if}>{zone.name}</option>
+                {/for}
+            </select>
+        </div>
+        <div class="three wide field">
+        </div>
+    </div>
+
+
     <!-- Options like 'hidden', 'suspended' -->
     <div class="fields">
         <div class="two wide field">

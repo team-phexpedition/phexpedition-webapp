@@ -2,6 +2,9 @@ package de.huepattl.phexpedition
 
 import java.time.*
 import java.time.format.DateTimeFormatter
+import java.util.*
+import java.util.concurrent.TimeUnit
+import kotlin.math.abs
 
 /*
  * Turned out that still datetime formats differ between web and Java, thus we
@@ -16,7 +19,7 @@ import java.time.format.DateTimeFormatter
  *
  * TODO: allow for passing client time zone
  */
-fun parseLocalDateTime(string: String, default: Instant): Instant {
+fun parseLocalDateTime(string: String, default: Instant, timeZoneId: String): Instant {
     if (string == null) {
         return default
     }
@@ -25,7 +28,7 @@ fun parseLocalDateTime(string: String, default: Instant): Instant {
     val (hour, minute) = time.split(":")
 
     val localDateTime = LocalDateTime.of(year.toInt(), month.toInt(), day.toInt(), hour.toInt(), minute.toInt())
-    val zonedDateTime = ZonedDateTime.of(localDateTime, ZoneId.of("UTC"))
+    val zonedDateTime = ZonedDateTime.of(localDateTime, ZoneId.of(timeZoneId))
 
     return Instant.from(zonedDateTime)
 }
@@ -42,3 +45,30 @@ fun toString(instant: Instant): String {
 
     return str
 }
+
+data class TimeZoneWithName(val tz: TimeZone, val name: String, val id: String)
+
+/**
+ * @see https://mkyong.com/java/java-display-list-of-timezone-with-gmt/
+ * @see https://stackoverflow.com/questions/57468423/java-8-time-zone-zonerulesexception-unknown-time-zone-id-est
+ */
+fun timeZones(): List<TimeZoneWithName> {
+    var result = mutableListOf<TimeZoneWithName>()
+    ZoneId.getAvailableZoneIds().forEach {
+        val tz = TimeZone.getTimeZone(it)
+        val hours = TimeUnit.MILLISECONDS.toHours(tz.rawOffset.toLong())
+        var minutes = TimeUnit.MILLISECONDS.toMinutes(tz.rawOffset.toLong()) - TimeUnit.HOURS.toMinutes(hours)
+        // avoid -4:-30 issue
+        minutes = abs(minutes)
+
+        val tzString = if (hours > 0) {
+            String.format("(GMT+%d:%02d) %s", hours, minutes, tz.id)
+        } else {
+            String.format("(GMT%d:%02d) %s", hours, minutes, tz.id)
+        }
+
+        result.add(TimeZoneWithName(id = tz.id, name = tzString, tz = tz))
+    }
+    return result
+}
+
