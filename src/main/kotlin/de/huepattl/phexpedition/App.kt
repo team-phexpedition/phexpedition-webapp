@@ -1,6 +1,6 @@
 package de.huepattl.phexpedition
 
-import de.huepattl.phexpedition.user.User
+import de.huepattl.phexpedition.user.UserEntity
 import de.huepattl.phexpedition.user.UserRepository
 import io.quarkus.elytron.security.common.BcryptUtil
 import io.quarkus.qute.Template
@@ -8,6 +8,7 @@ import io.quarkus.qute.TemplateInstance
 import io.quarkus.runtime.StartupEvent
 import io.quarkus.runtime.configuration.ProfileManager
 import org.jboss.logging.Logger
+import org.jboss.logging.MDC
 import java.net.URI
 import java.time.*
 import java.time.format.DateTimeFormatter
@@ -57,7 +58,7 @@ class App(@Inject val userRepository: UserRepository) {
             } else {
                 UUID.randomUUID().toString()
             }
-            userRepository.persist(User(login = "admin", displayName = "Admin User",
+            userRepository.persist(UserEntity(login = "admin", displayName = "Admin User",
                     password = BcryptUtil.bcryptHash(randomPassword), roles = Role.Administrator))
             log.info("+++ !!! GENERATED ADMIN PASSWORD IS: '$randomPassword' !!!+++")
             log.info("+++ !!! Please change it immediately after loggin in.  !!!+++")
@@ -66,28 +67,11 @@ class App(@Inject val userRepository: UserRepository) {
 
     @Transactional
     fun initDefaultUser(@Observes event: StartupEvent) {
-        val user = User(login = "user", displayName = "Default User",
+        val user = UserEntity(login = "user", displayName = "Default User",
                 password = BcryptUtil.bcryptHash("user"), roles = Role.User)
         userRepository.persist(user)
         log.info("+++ !!! GENERATED DEFAULT USER PASSWORD IS: 'user' !!!+++")
         log.info("+++ !!! Please change it immediately after loggin in.  !!!+++")
-    }
-
-    companion object {
-        fun whoAmI(securityContext: SecurityContext, userRepository: UserRepository): User? {
-            val login = securityContext?.userPrincipal?.name ?: ""
-            return userRepository.findByLogin(login) ?: null
-        }
-
-        fun myselfOrAdmin(me: User, id: String): Boolean {
-            if (me.isAdmin()) {
-                return true
-            }
-            if (me.id == id) {
-                return true
-            }
-            return false
-        }
     }
 
 }
@@ -99,20 +83,27 @@ class App(@Inject val userRepository: UserRepository) {
 @Produces(MediaType.TEXT_HTML)
 class Home(@Inject val userRepository: UserRepository, @Inject val home: Template) {
 
+    private val log = Logger.getLogger(Home::class.java)
+
     @GET
     fun show(@Context securityContext: SecurityContext): TemplateInstance {
-        return home
+
+        transactionStart(whoAmI(securityContext, userRepository))
+
+        log.info("Show home page")
+        val template = home
                 .data("title", "Phexpedition")
                 .data("breadCrumbs", linkedMapOf(
                         Pair("Home", "/")))
-                .data("me", App.whoAmI(securityContext, userRepository))
+                .data("me", whoAmI(securityContext, userRepository))
+
+        transactionStop()
+
+        return template
     }
 
 }
 
-/**
- * Home page is rendered here.
- */
 @Path("/login")
 @Produces(MediaType.TEXT_HTML)
 @RolesAllowed(Role.User, Role.Administrator)
@@ -125,48 +116,15 @@ class Login {
 
 }
 
-/**
- * Turned out that still datetime formats differ between web and Java, thus we
- * handle conversion here until we found a better place.
- */
-class Converters {
-
-    companion object {
-
-        /**
-         * Returns a Java [Instant] for UTC based on a given local date time as passed
-         * by the client. Browsers with `<input type="datetime-local" ...>` useprovide format
-         * yyyy-MM-ddTHH:mm (e.g. 2020-12-31T23:59) while java is more precise and
-         * [Instant.parse] does not understand that pattern.
-         *
-         * TODO: allow for passing client time zone
-         */
-        fun parseLocalDateTime(string: String, default: Instant): Instant {
-            if (string == null) {
-                return default
-            }
-            val (date, time) = string.split("T")
-            val (year, month, day) = date.split("-")
-            val (hour, minute) = time.split(":")
-
-            val localDateTime = LocalDateTime.of(year.toInt(), month.toInt(), day.toInt(), hour.toInt(), minute.toInt())
-            val zonedDateTime = ZonedDateTime.of(localDateTime, ZoneId.of("UTC"))
-
-            return Instant.from(zonedDateTime)
-        }
-
-        /**
-         * Returns datetime in required format of `<input type="datetime-local" ...>`
-         *
-         * TODO: allow for passing client time zone
-         */
-        fun toString(instant: Instant): String {
-            val ldt = LocalDateTime.ofInstant(instant, ZoneOffset.UTC)
-            val fmt = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-            val str = fmt.format(ldt).replace(' ', 'T')//"${ldt.year}-${ldt.monthValue}-${ldt.dayOfMonth}T${ldt.hour}:${ldt.minute}"
-
-            return str
-        }
-
+fun transactionStart(me: UserEntity?): Unit {
+    MDC.put("transaction", UUID.randomUUID().toString())
+    if (me != null) {
+        MDC.put("user", me.id)
     }
 }
+
+fun transactionStop(): Unit {
+    MDC.remove("transaction")
+    MDC.remove("user")
+}
+

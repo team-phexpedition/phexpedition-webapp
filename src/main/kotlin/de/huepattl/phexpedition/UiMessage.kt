@@ -4,7 +4,10 @@ enum class MessageType {
     Information, Error
 }
 
-data class UiMessage(val type: MessageType = MessageType.Information, val title: String, val text: String) {
+data class UiMessage(
+        val type: MessageType = MessageType.Information,
+        val title: String,
+        val text: String) {
 
     /**
      * Semantic CSS class.
@@ -27,4 +30,5 @@ data class UiMessage(val type: MessageType = MessageType.Information, val title:
             return "check circle"
         }
     }
+
 }

@@ -1,7 +1,7 @@
 package de.huepattl.phexpedition.user.web
 
 import de.huepattl.phexpedition.*
-import de.huepattl.phexpedition.user.User
+import de.huepattl.phexpedition.user.UserEntity
 import de.huepattl.phexpedition.user.UserRepository
 import io.quarkus.qute.Template
 import io.quarkus.qute.TemplateInstance
@@ -19,7 +19,7 @@ import javax.ws.rs.core.SecurityContext
 
 
 /**
- * Controller for viewing, creating or editing a [User] entity.
+ * Controller for viewing, creating or editing a [UserEntity] entity.
  */
 @Path("/user/{id}")
 @Produces(MediaType.TEXT_HTML)
@@ -31,7 +31,7 @@ class UserEdit(@Inject val userRepository: UserRepository, @Inject val userEdit:
     private val log = Logger.getLogger(UserEdit::class.java)
 
     /**
-     * Model used for presenting a single [User] in view/edit/create view, used by
+     * Model used for presenting a single [UserEntity] in view/edit/create view, used by
      * [UserEdit] controller. Using a data class did not work with RESTEasy with Kotlin.
      */
     class UserEditModel {
@@ -61,15 +61,15 @@ class UserEdit(@Inject val userRepository: UserRepository, @Inject val userEdit:
         companion object {
 
             /**
-             * Create model directly form [User] entity.
+             * Create model directly form [UserEntity] entity.
              */
-            fun from(entity: User): UserEditModel {
+            fun from(entity: UserEntity): UserEditModel {
                 var model = UserEditModel()
                 model.id = entity.id
                 model.login = entity.login
                 model.displayName = entity.displayName
-                model.validFrom = Converters.toString(entity.validFrom)
-                model.validUntil = Converters.toString(entity.validUntil)
+                model.validFrom = toString(entity.validFrom)
+                model.validUntil = toString(entity.validUntil)
                 model.hidden = entity.hidden
                 model.suspended = entity.suspended
                 model.roles = entity.roles
@@ -87,22 +87,31 @@ class UserEdit(@Inject val userRepository: UserRepository, @Inject val userEdit:
             @PathParam("id") id: String,
             @Context securityContext: SecurityContext
     ): TemplateInstance {
+
+        transactionStart(whoAmI(securityContext, userRepository))
+
         val loginUser = userRepository.findByLogin(securityContext?.userPrincipal?.name ?: "")
         if (!loginUser?.roles?.contains(Role.Administrator)!! && id != loginUser.id ?: "") {
             throw IllegalAccessException("You are not authorized to edit this user!")
         }
 
         val user = if (id == "_new") {
-            User(login = "")
+            log.info("Edit: showing nothing since we want to create a user")
+            UserEntity(login = "")
         } else {
+            log.info("Edit: showing information for user with ID '$id'")
             userRepository.findById(id)
         }
 
-        return userEdit
+        val template = userEdit
                 .data("breadCrumbs", breadCrumbs(user))
                 .data("messages", emptyList<UiMessage>())
                 .data("user", UserEditModel.from(user!!))
-                .data("me", App.whoAmI(securityContext, userRepository))
+                .data("me", whoAmI(securityContext, userRepository))
+
+        transactionStop()
+
+        return template
     }
 
     /**
@@ -113,24 +122,25 @@ class UserEdit(@Inject val userRepository: UserRepository, @Inject val userEdit:
             @BeanParam userEditModel: UserEditModel,
             @Context securityContext: SecurityContext
     ): TemplateInstance {
-        MDC.put("transaction", UUID.randomUUID())
+        transactionStart(whoAmI(securityContext, userRepository))
         log.info("Creating/updating user $userEditModel.login $$userEditModel.displayName $userEditModel.validFrom")
 
-        val me = App.whoAmI(securityContext, userRepository)
+        val me = whoAmI(securityContext, userRepository)
 
         val messages = mutableListOf<UiMessage>()
 
         var user = userRepository.findById(userEditModel.id)
 
         if (user == null) {
-            log.info("User not found, creating one instead...")
-            user = User(id = userEditModel.id, login = userEditModel.login, displayName = userEditModel.displayName)
+            log.info("User not found, creating '${userEditModel.login}' with ID '${userEditModel.id}' instead...")
+            user = UserEntity(id = userEditModel.id, login = userEditModel.login, displayName = userEditModel.displayName)
             userRepository.persist(user)
             messages.add(UiMessage(
                     type = MessageType.Information,
                     title = "User created",
                     text = "User '${userEditModel.displayName}' with login '${userEditModel.login}' has been created."))
         } else {
+            log.info("Updating user '${userEditModel.login}' with ID '${userEditModel.id}'")
             messages.add(UiMessage(
                     type = MessageType.Information,
                     title = "User updated",
@@ -142,17 +152,23 @@ class UserEdit(@Inject val userRepository: UserRepository, @Inject val userEdit:
         user.suspended = userEditModel.switches?.contains("suspended") ?: false
         user.hidden = userEditModel.switches?.contains("hidden") ?: false
         user.roles = userEditModel.roles
-        user.validFrom = Converters.parseLocalDateTime(userEditModel.validFrom, user.validFrom)
-        user.validUntil = Converters.parseLocalDateTime(userEditModel.validUntil, user.validUntil)
+        user.validFrom = parseLocalDateTime(userEditModel.validFrom, user.validFrom)
+        user.validUntil = parseLocalDateTime(userEditModel.validUntil, user.validUntil)
 
-        return userEdit
+        log.info("Persisting user $user")
+
+        val template = userEdit
                 .data("breadCrumbs", breadCrumbs(user))
                 .data("messages", messages)
                 .data("user", UserEditModel.from(user))
                 .data("me", me)
+
+        transactionStop()
+
+        return template
     }
 
-    fun breadCrumbs(user: User?): LinkedHashMap<String, String> {
+    fun breadCrumbs(user: UserEntity?): LinkedHashMap<String, String> {
         return if (user!!.isAdmin()) {
             linkedMapOf(
                     Pair("Home", "/"),

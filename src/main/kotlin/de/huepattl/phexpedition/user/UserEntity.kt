@@ -5,7 +5,6 @@ import io.quarkus.security.jpa.*
 import java.time.Instant
 import java.util.*
 import javax.persistence.Entity
-import javax.persistence.GeneratedValue
 import javax.persistence.Id
 import javax.persistence.Table
 
@@ -21,7 +20,7 @@ import javax.persistence.Table
 @Entity
 @Table(name = "LOCAL_USER")
 @UserDefinition
-data class User(
+data class UserEntity(
 
         /**
          * Unique user idnetifier, remains the same over time.
@@ -94,8 +93,8 @@ data class User(
     }
 
     companion object {
-        fun random(): User {
-            return User(login = "rnd-${System.currentTimeMillis()}", displayName = "name-${UUID.randomUUID().toString()}")
+        fun random(): UserEntity {
+            return UserEntity(login = "rnd-${System.currentTimeMillis()}", displayName = "name-${UUID.randomUUID().toString()}")
         }
     }
 }
