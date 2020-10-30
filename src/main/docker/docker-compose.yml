@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+
+  phexpedition:
+    container_name: phexpedition
+    image: bjblazko/phexpedition:latest
+    env_file:
+      - /etc/phexpedition.env
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+
+  postgres:
+    container_name: postgres
+    image: library/postgres:12.4-alpine
+    restart: always
+    env_file:
+      - /etc/phexpedition.env
+    ports:
+      - "5432:5432"
