@@ -1,5 +1,9 @@
 version: '3.8'
 
+volumes:
+  caddy_data:
+  caddy_config:
+
 services:
 
   phexpedition:
@@ -20,3 +24,13 @@ services:
       - /etc/phexpedition.env
     ports:
       - "5432:5432"
+
+  caddy:
+    image: caddy
+    volumes:
+      - caddy_data:/data
+      - caddy_config:/etc
+    ports:
+      - 80:80
+      - 443:443
+    command: caddy reverse-proxy --from beta.phexpedition.net --to backend:8080
