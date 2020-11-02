@@ -27,4 +27,4 @@ jobs:
       - name: Docker - login
         run: docker login -u ${{secrets.DOCKER_USERNAME}} -p ${{secrets.DOCKER_PASSWORD}}
       - name: Docker - upload to repository
-        run: docker push
+        run: docker push phexpedition
