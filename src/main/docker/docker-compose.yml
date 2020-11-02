@@ -3,7 +3,6 @@ version: '3.8'
 volumes:
   caddy_data:
   caddy_config:
-  postgres_data: /data/postgres
 
 services:
 
@@ -11,7 +10,7 @@ services:
     container_name: phexpedition
     image: bjblazko/phexpedition:latest
     env_file:
-      - /etc/phexpedition.env
+      - /phexpedition/phexpedition.env
     ports:
       - "8080:8080"
     depends_on:
@@ -22,9 +21,9 @@ services:
     image: library/postgres:12.4-alpine
     restart: always
     env_file:
-      - /etc/phexpedition.env
+      - /phexpedition/phexpedition.env
     volumes:
-    - /phexpedition/postgres/data:/var/lib/postgresql/data
+      - "/phexpedition/postgres/data:/var/lib/postgresql/data"
     ports:
       - "5432:5432"
 
