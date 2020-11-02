@@ -3,6 +3,7 @@ version: '3.8'
 volumes:
   caddy_data:
   caddy_config:
+  postgres_data: /data/postgres
 
 services:
 
@@ -22,6 +23,8 @@ services:
     restart: always
     env_file:
       - /etc/phexpedition.env
+    volumes:
+    - /phexpedition/postgres/data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
 
