@@ -30,8 +30,8 @@ services:
   caddy:
     image: caddy
     volumes:
-      - caddy_data:/data
-      - caddy_config:/etc
+      - "/phexpedition/caddy/data:/data"
+      - "/phexpedition/caddy/config:/etc"
     ports:
       - 80:80
       - 443:443
