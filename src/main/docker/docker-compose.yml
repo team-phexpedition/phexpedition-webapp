@@ -33,4 +33,4 @@ services:
     ports:
       - 80:80
       - 443:443
-    command: caddy reverse-proxy --from beta.phexpedition.net --to backend:8080
+    command: caddy reverse-proxy --from beta.phexpedition.net --to phexpedition:8080
