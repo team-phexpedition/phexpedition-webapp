@@ -28,11 +28,10 @@ services:
       - "5432:5432"
 
   caddy:
-    image: caddy
+    image: caddy:2.1.1-alpine
     volumes:
-      - "/phexpedition/caddy/data:/data"
-      - "/phexpedition/caddy/config:/etc"
+      - /phexpedition/caddy/config/Caddyfile:/etc/caddy/Caddyfile
+      - caddy_data:/data
     ports:
       - 80:80
       - 443:443
-    command: caddy reverse-proxy --from beta.phexpedition.net --to phexpedition:8080
