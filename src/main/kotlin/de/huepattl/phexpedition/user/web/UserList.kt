@@ -36,21 +36,22 @@ data class UserListModel(val id: String, val login: String, val displayName: Str
         /**
          * Create a list user from the basing entity [UserEntity].
          */
-        fun from(entity: UserEntity): UserListModel {
+        fun from(entity: UserEntity, timeZoneId: String): UserListModel {
             return UserListModel(entity.id, entity.login, entity.displayName,
-                    formatDate(entity.validFrom), formatDate(entity.validUntil))
+                    formatDate(entity.validFrom, timeZoneId), formatDate(entity.validUntil, timeZoneId))
         }
 
         /**
          * Used internally for showing validity dates with date only as YYYY-MM-DD.
          */
-        private fun formatDate(date: Instant): String {
+        private fun formatDate(date: Instant, timeZoneId: String): String {
             val formatter = DateTimeFormatter.ofPattern("YYYY-MM-dd")
                     .withLocale(Locale.GERMANY)
-                    .withZone(ZoneId.systemDefault())
+                    .withZone(ZoneId.of(timeZoneId))
             return formatter.format(date)
         }
     }
+
 }
 
 
@@ -81,10 +82,12 @@ class UserList(@Inject val userRepository: UserRepository, @Inject val userList:
 
         log.info("Finding users for '$filter'")
 
+        val me = whoAmI(securityContext, userRepository)
+
         val allUsers = userRepository.findAny(
                 filter ?: "",
                 SortColumn.valueOf(sortColumn ?: "Login"),
-                SortDirection.valueOf(sortDirection ?: "Ascending")).map { UserListModel.from(it) }
+                SortDirection.valueOf(sortDirection ?: "Ascending")).map { UserListModel.from(it, me!!.timeZone) }
 
         log.info("Found ${allUsers.size} entries")
 

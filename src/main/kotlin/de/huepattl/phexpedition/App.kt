@@ -67,11 +67,13 @@ class App(@Inject val userRepository: UserRepository) {
 
     @Transactional
     fun initDefaultUser(@Observes event: StartupEvent) {
-        val user = UserEntity(login = "user", displayName = "Default User",
-                password = BcryptUtil.bcryptHash("user"), roles = Role.User)
-        userRepository.persist(user)
-        log.info("+++ !!! GENERATED DEFAULT USER PASSWORD IS: 'user' !!!+++")
-        log.info("+++ !!! Please change it immediately after loggin in.  !!!+++")
+        if (userRepository.findByLogin("user") == null) {
+            val user = UserEntity(login = "user", displayName = "Default User",
+                    password = BcryptUtil.bcryptHash("user"), roles = Role.User)
+            userRepository.persist(user)
+            log.info("+++ !!! GENERATED DEFAULT USER PASSWORD IS: 'user' !!!+++")
+            log.info("+++ !!! Please change it immediately after loggin in.  !!!+++")
+        }
     }
 
 }
