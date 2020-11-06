@@ -76,7 +76,7 @@
             <label for="timeZone">Time zone</label>
             <select class="ui fluid dropdown" id="timeZone" name="timeZone">
                 {#for zone in timeZones}
-                <option value="{zone.id}" {#if user.timeZone eq zone.id}selected{/if}>{zone.name}</option>
+                    <option value="{zone.id}" {#if user.timeZone eq zone.id}selected{/if}>{zone.name}</option>
                 {/for}
             </select>
         </div>

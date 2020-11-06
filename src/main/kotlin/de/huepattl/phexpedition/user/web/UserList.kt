@@ -51,6 +51,7 @@ data class UserListModel(val id: String, val login: String, val displayName: Str
             return formatter.format(date)
         }
     }
+
 }
 
 

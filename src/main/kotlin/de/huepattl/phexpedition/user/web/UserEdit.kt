@@ -7,6 +7,8 @@ import io.quarkus.qute.Template
 import io.quarkus.qute.TemplateInstance
 import org.jboss.logging.Logger
 import org.jboss.logging.MDC
+import java.time.Instant
+import java.time.ZoneId
 import java.util.*
 import javax.annotation.security.RolesAllowed
 import javax.enterprise.context.RequestScoped
@@ -66,13 +68,13 @@ class UserEdit(@Inject val userRepository: UserRepository, @Inject val userEdit:
             /**
              * Create model directly form [UserEntity] entity.
              */
-            fun from(entity: UserEntity): UserEditModel {
+            fun from(entity: UserEntity, timeZone: ZoneId): UserEditModel {
                 var model = UserEditModel()
                 model.id = entity.id
                 model.login = entity.login
                 model.displayName = entity.displayName
-                model.validFrom = toString(entity.validFrom)
-                model.validUntil = toString(entity.validUntil)
+                model.validFrom = DateConverter.toString(entity.validFrom, timeZone)
+                model.validUntil = DateConverter.toString(entity.validUntil, timeZone)
                 model.hidden = entity.hidden
                 model.suspended = entity.suspended
                 model.roles = entity.roles
@@ -92,7 +94,8 @@ class UserEdit(@Inject val userRepository: UserRepository, @Inject val userEdit:
             @Context securityContext: SecurityContext
     ): TemplateInstance {
 
-        transactionStart(whoAmI(securityContext, userRepository))
+        val me = whoAmI(securityContext, userRepository)
+        transactionStart(me)
 
         val loginUser = userRepository.findByLogin(securityContext?.userPrincipal?.name ?: "")
         if (!loginUser?.roles?.contains(Role.Administrator)!! && id != loginUser.id ?: "") {
@@ -110,9 +113,9 @@ class UserEdit(@Inject val userRepository: UserRepository, @Inject val userEdit:
         val template = userEdit
                 .data("breadCrumbs", breadCrumbs(user))
                 .data("messages", emptyList<UiMessage>())
-                .data("timeZones", timeZones())
-                .data("user", UserEditModel.from(user!!))
-                .data("me", whoAmI(securityContext, userRepository))
+                .data("timeZones", TimeZones.list())
+                .data("user", UserEditModel.from(user!!, ZoneId.of(me!!.timeZone)))
+                .data("me", me)
 
         transactionStop()
 
@@ -158,8 +161,8 @@ class UserEdit(@Inject val userRepository: UserRepository, @Inject val userEdit:
             suspended = userEditModel.switches?.contains("suspended") ?: false
             hidden = userEditModel.switches?.contains("hidden") ?: false
             roles = userEditModel.roles
-            validFrom = parseLocalDateTime(userEditModel.validFrom, user.validFrom, user.timeZone)
-            validUntil = parseLocalDateTime(userEditModel.validUntil, user.validUntil, user.timeZone)
+            validFrom = DateConverter.parseLocalDateTimeAsUtc(userEditModel.validFrom, user.validFrom)
+            validUntil = DateConverter.parseLocalDateTimeAsUtc(userEditModel.validUntil, user.validUntil)
             timeZone = userEditModel.timeZone
         }
 
@@ -168,8 +171,8 @@ class UserEdit(@Inject val userRepository: UserRepository, @Inject val userEdit:
         val template = userEdit
                 .data("breadCrumbs", breadCrumbs(user))
                 .data("messages", messages)
-                .data("user", UserEditModel.from(user))
-                .data("timeZones", timeZones())
+                .data("user", UserEditModel.from(user, ZoneId.of(me!!.timeZone)))
+                .data("timeZones", TimeZones.list())
                 .data("me", me)
 
         transactionStop()
