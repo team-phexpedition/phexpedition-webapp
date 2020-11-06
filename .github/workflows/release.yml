@@ -16,7 +16,7 @@ jobs:
       - uses: actions/setup-java@v1
         with:
           java-version: 11
-      - run: mvn -B package --file pom.xml
+      - run: mvn -DbuildNumber=$GITHUB_RUN_NUMBER -B package --file pom.xml
       - run: mkdir staging && cp target/webapp-*runner.jar staging/phexpedition-webapp.jar
       - uses: actions/upload-artifact@v1
         with:
