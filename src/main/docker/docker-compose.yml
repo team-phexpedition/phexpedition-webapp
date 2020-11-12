@@ -2,7 +2,7 @@ version: '3.8'
 
 volumes:
   caddy_data:
-  caddy_config:
+  portainer_data:
 
 services:
 
@@ -35,3 +35,14 @@ services:
     ports:
       - 80:80
       - 443:443
+
+  portainer:
+    container_name: portainer
+    image: portainer/portainer-ce:latest
+    restart: always
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+      - portainer_data:/data portainer/portainer-ce
+    ports:
+      - "8000:8000"
+      - "9000:9000"
