@@ -31,6 +31,25 @@ services:
     ports:
     - "5432:5432"
 
+  elasticsearch:
+    container_name: elasticsearch
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.10.0
+    restart: always
+    environment:
+      - "discovery.type=single-node"
+    ports:
+    - "9200:9200"
+    - "9300:9300"
+
+  kibana:
+    container_name: kibana
+    image: docker.elastic.co/kibana/kibana:7.10.0
+    restart: always
+    environment:
+      - "elasticsearch.hosts=http://elasticsearch:9200"
+    ports:
+      - "5601:5601"
+
   portainer:
     container_name: portainer
     image: portainer/portainer-ce:latest

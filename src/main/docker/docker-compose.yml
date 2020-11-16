@@ -46,3 +46,32 @@ services:
     ports:
       - "8000:8000"
       - "9000:9000"
+
+  elasticsearch:
+    container_name: elasticsearch
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.10.0
+    restart: always
+    environment:
+      - "discovery.type=single-node"
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+
+  kibana:
+    container_name: kibana
+    image: docker.elastic.co/kibana/kibana:7.10.0
+    restart: always
+    environment:
+      - "elasticsearch.hosts=http://elasticsearch:9200"
+    ports:
+      - "5601:5601"
+    depends_on:
+      - elasticsearch
+
+  filebeat:
+    image: "docker.elastic.co/beats/filebeat:7.10.0"
+    user: root
+    volumes:
+      - /phexpedition/elastic/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
+      - /var/lib/docker:/var/lib/docker:ro
+      - /var/run/docker.sock:/var/run/docker.sock
