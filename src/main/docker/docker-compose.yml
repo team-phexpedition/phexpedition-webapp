@@ -28,6 +28,7 @@ services:
       - "5432:5432"
 
   caddy:
+    container_name: caddy
     image: caddy:2.1.1-alpine
     volumes:
       - /phexpedition/caddy/Caddyfile:/etc/caddy/Caddyfile
@@ -61,8 +62,6 @@ services:
     container_name: kibana
     image: docker.elastic.co/kibana/kibana:7.10.0
     restart: always
-    environment:
-      - "elasticsearch.hosts=http://elasticsearch:9200"
     ports:
       - "5601:5601"
     depends_on:
