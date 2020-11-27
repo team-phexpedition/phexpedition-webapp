@@ -6,7 +6,8 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>de.huepattl.phexpedition</groupId>
     <artifactId>webapp</artifactId>
-    <version>${revision}</version>
+    <!--version>${revision}</version-->
+    <version>local</version>
 
     <licenses>
         <license>
@@ -139,6 +140,16 @@
         <dependency>
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-resteasy-qute</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-micrometer</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-registry-prometheus</artifactId>
+            <version>1.6.1</version>
         </dependency>
     </dependencies>
 

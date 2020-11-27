@@ -1,5 +1,8 @@
 version: '3.8'
 
+# Prefixing port numbers with 127.0.0.1: to avoid problems with firewall ufw.
+# see https://www.peterspython.com/en/blog/docker-on-debian-ubuntu-not-respecting-ufw-firewall-settings-exposing-ports
+
 volumes:
   caddy_data:
   portainer_data:
@@ -12,7 +15,7 @@ services:
     env_file:
       - /phexpedition/phexpedition.env
     ports:
-      - "8080:8080"
+      - "127.0.0.1:8080:8080"
     depends_on:
       - postgres
 
@@ -25,7 +28,7 @@ services:
     volumes:
       - "/phexpedition/postgres/data:/var/lib/postgresql/data"
     ports:
-      - "5432:5432"
+      - "127.0.0.1:5432:5432"
 
   caddy:
     container_name: caddy
@@ -45,8 +48,8 @@ services:
       - "/var/run/docker.sock:/var/run/docker.sock"
       - portainer_data:/data portainer/portainer-ce
     ports:
-      - "8000:8000"
-      - "9000:9000"
+      - "127.0.0.1:8000:8000"
+      - "127.0.0.1:9000:9000"
 
   elasticsearch:
     container_name: elasticsearch
@@ -55,22 +58,23 @@ services:
     environment:
       - "discovery.type=single-node"
     ports:
-      - "9200:9200"
-      - "9300:9300"
+      - "127.0.0.1:9200:9200"
+      - "127.0.0.1:9300:9300"
 
   kibana:
     container_name: kibana
     image: docker.elastic.co/kibana/kibana:7.10.0
     restart: always
     environment:
-      - "SERVER_NAME=kibana-beta.phexpedition.net"
+      - "SERVER_NAME=beta-kibana.phexpedition.net"
       - "ELASTICSEARCH_HOSTS=http://elasticsearch:9200"
     ports:
-      - "5601:5601"
+      - "127.0.0.1:5601:5601"
     depends_on:
       - elasticsearch
 
   filebeat:
+    container_name: filebeat
     image: "docker.elastic.co/beats/filebeat:7.10.0"
     user: root
     volumes:
