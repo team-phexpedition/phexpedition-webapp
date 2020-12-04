@@ -58,7 +58,7 @@ services:
     environment:
       - "discovery.type=single-node"
     volumes:
-    - /phexpedition/elastic:/usr/share/elasticsearch/data
+    - "/phexpedition/elastic:/usr/share/elasticsearch/data"
     ports:
       - "127.0.0.1:9200:9200"
       - "127.0.0.1:9300:9300"
@@ -80,7 +80,7 @@ services:
     image: "docker.elastic.co/beats/filebeat:7.10.0"
     user: root
     volumes:
-      - /phexpedition/elastic/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
+      - "/phexpedition/elastic/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro"
       - /var/lib/docker:/var/lib/docker:ro
       - /var/run/docker.sock:/var/run/docker.sock
 
@@ -88,7 +88,7 @@ services:
     container_name: prometheus
     image: prom/prometheus:latest
     volumes:
-      - /phexpedition/prometheus:/etc/prometheus
+      - "/phexpedition/prometheus:/etc/prometheus"
     ports:
       - "9090:9090"
     command:
@@ -98,7 +98,7 @@ services:
     container_name: grafana
     image: grafana/grafana:latest
     volumes:
-      - ./prometheus:/var/lib/grafana
+      - "/phexpedition/grafana:/var/lib/grafana"
     ports:
       - "3000:3000"
 
