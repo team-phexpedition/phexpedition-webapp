@@ -57,6 +57,8 @@ services:
     restart: always
     environment:
       - "discovery.type=single-node"
+    volumes:
+    - /phexpedition/elastic:/usr/share/elasticsearch/data
     ports:
       - "127.0.0.1:9200:9200"
       - "127.0.0.1:9300:9300"
@@ -81,3 +83,29 @@ services:
       - /phexpedition/elastic/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
       - /var/lib/docker:/var/lib/docker:ro
       - /var/run/docker.sock:/var/run/docker.sock
+
+  prometheus:
+    container_name: prometheus
+    image: prom/prometheus:latest
+    volumes:
+      - /phexpedition/prometheus:/etc/prometheus
+    ports:
+      - "9090:9090"
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+
+  grafana:
+    container_name: grafana
+    image: grafana/grafana:latest
+    volumes:
+      - ./prometheus:/var/lib/grafana
+    ports:
+      - "3000:3000"
+
+  postgres-prometheus-exporter:
+    container_name: postgres-prometheus-exporter
+    image: wrouesnel/postgres_exporter
+    env_file:
+      - /phexpedition/phexpedition.env
+    depends_on:
+      - postgres
