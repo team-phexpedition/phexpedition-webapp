@@ -88,9 +88,9 @@ services:
     container_name: prometheus
     image: prom/prometheus:latest
     volumes:
-      - "/phexpedition/prometheus:/etc/prometheus"
+      - "/phexpedition/prometheus:/etc/prometheus:ro"
     ports:
-      - "9090:9090"
+      - "127.0.0.1:9090:9090"
     command:
       - --config.file=/etc/prometheus/prometheus.yml
 
@@ -100,7 +100,7 @@ services:
     volumes:
       - "/phexpedition/grafana:/var/lib/grafana"
     ports:
-      - "3000:3000"
+      - "127.0.0.1:3000:3000"
 
   postgres-prometheus-exporter:
     container_name: postgres-prometheus-exporter
@@ -110,11 +110,12 @@ services:
     depends_on:
       - postgres
 
+  # See: https://teqqy.de/docker-monitoring-mit-prometheus-und-grafana/
   cadvisor:
     container_name: cadvisor
-    image: gcr.io/cadvisor/cadvisor
+    image: gcr.io/cadvisor/cadvisor:v0.38.6
     ports:
-      - "3535:8080"
+      - "127.0.0.1:3535:8080"
     privileged: true
     devices:
       - "/dev/kmsg"
@@ -124,3 +125,20 @@ services:
       - "/sys:/sys:ro"
       - "/var/lib/docker/:/var/lib/docker:ro"
       - "/dev/disk/:/dev/disk:ro"
+
+  node-exporter:
+    container_name: node-exporter
+    image: prom/node-exporter:latest
+    restart: unless-stopped
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.sysfs=/host/sys'
+      - '--path.rootfs=/rootfs'
+      - '--collector.filesystem.ignored-mount-points="^(/rootfs|/host|)/(sys|proc|dev|host|etc)($$|/)"'
+      - '--collector.filesystem.ignored-fs-types="^(sys|proc|auto|cgroup|devpts|ns|au|fuse\.lxc|mqueue)(fs|)$$"'
